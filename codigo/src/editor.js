@@ -201,7 +201,7 @@
     const T = { off: 'Solo en este navegador', checking: 'Conectando con GitHub…', ok: '✓ Guardado en GitHub', saving: 'Guardando en GitHub…', error: '⚠ GitHub: sin guardar' };
     b.textContent = T[st] || T.off; b.classList.toggle('warn', st === 'error' || st === 'off'); b.title = st === 'error' ? BQ.gh.err : 'Dónde se guardan los cuestionarios';
   }
-  function ghWindow(intro) {
+  function ghWindow(intro, share) {
     const c = BQ.gh.cfg(), st = BQ.gh.state, conn = BQ.gh.configured();
     const local = E.quiz.qs.filter(x => x.clip && x.clip.src !== 'lib' && !x.clip.gh).length;
     const m = BQ.modal(intro ? 'Bienvenido al staff' : 'Guardar en GitHub', `
@@ -226,6 +226,7 @@
       BQ.gh.setCfg({ name: m.querySelector('#ghName').value.trim(), repo: m.querySelector('#ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$|\/$/g, ''), token: m.querySelector('#ghTok').value.trim() });
       m.close(); if (await BQ.gh.check()) { BQ.toast('Conectado: sincronizando…'); await ghSync(); BQ.toast('Todo guardado en GitHub'); } else ghWindow();
     };
+    if (share) { const inv = m.querySelector('#ghInv'); if (inv) setTimeout(() => { inv.scrollIntoView({ block: 'center' }); inv.select(); }, 50); else BQ.toast('Primero conecta GitHub aquí: después sale el enlace para el staff', 5000); }
     const cp = m.querySelector('#ghInvCp'); if (cp) cp.onclick = async () => { const i = m.querySelector('#ghInv'); try { await navigator.clipboard.writeText(i.value); BQ.toast('Enlace copiado'); } catch (e) { i.select(); BQ.toast('Copia el enlace seleccionado (Ctrl+C)'); } };
     const off = m.querySelector('[data-off]'); if (off) off.onclick = () => { BQ.gh.setCfg({ token: '' }); BQ.gh.check(); m.close(); BQ.toast('Este ordenador ya no guarda en GitHub (lo que ya está allí no se toca)'); };
     const sy = m.querySelector('[data-sync]'); if (sy) sy.onclick = async () => { m.close(); await ghSync(); await pullResults(); BQ.toast(BQ.gh.ok() ? 'Sincronizado con GitHub' : 'No se ha podido sincronizar'); };
@@ -258,7 +259,7 @@
   <input class="title" id="qTitle" aria-label="Nombre del cuestionario" spellcheck="false">
   <select id="qLang" aria-label="Idioma para los jugadores" title="Idioma de la pantalla grande y los móviles"><option value="ca">Català</option><option value="es">Castellano</option></select>
   <span class="grow"></span>
-  <button class="btn ghost ghchip" id="bGh"></button>
+  <button class="btn ghchip" id="bGh"></button>
   <button class="btn" id="bHelp">Ayuda</button>
   <button class="btn" id="bHist">Resultados</button>
   <button class="btn" id="bCfg">Ajustes</button>
@@ -313,7 +314,8 @@
       (shared && BQ.gh.state === 'checking' ? '<div class="cap">Buscando en GitHub…</div>' : '') +
       `<hr><button data-a="new">Nuevo cuestionario</button><button data-a="dup">Duplicar este</button>
        <label>Importar (.json)…<input type="file" accept=".json,application/json" id="fImp"></label>
-       <button data-a="exp">Exportar este (.json)</button><hr><button data-a="del" class="danger">Borrar este cuestionario…</button>`;
+       <button data-a="exp">Exportar este (.json)</button><hr><button data-a="share">Compartir con el staff…</button><hr><button data-a="del" class="danger">Borrar este cuestionario…</button>`;
+    $('#mQuizPop [data-a=share]').onclick = () => { closeMenus(); ghWindow(false, true); };
     $$('#mQuizPop [data-open]').forEach(b => b.onclick = () => { closeMenus(); openQuiz(b.dataset.open); });
     $('#mQuizPop [data-a=new]').onclick = () => { closeMenus(); newQuiz('Nuevo cuestionario'); };
     $('#mQuizPop [data-a=dup]').onclick = () => { closeMenus(); const q = BQ.clone(E.quiz); q.id = BQ.uid(8); q.title += ' (copia)'; q.created = Date.now(); E.quiz = q; save(true); renderAll(); BQ.toast('Copia creada'); };
@@ -639,7 +641,7 @@
       </ol>
       <p style="margin:0 0 8px"><b>Puntos:</b> hasta 1000 por acertar, menos cuanto más se tarda (nunca menos de 500), el doble en preguntas de puntos dobles. Cada acierto seguido a partir del segundo suma 100 más (hasta +500).</p>
       <p style="margin:0 0 8px"><b>Atajos al preparar:</b> espacio reproduce, ← → fotograma a fotograma (con Mayús, 1 segundo), <span class="kbd">I</span> inicio, <span class="kbd">P</span> parada, <span class="kbd">F</span> final, <span class="kbd">T</span> probar. <b>En la pantalla grande:</b> espacio o → siguiente, <span class="kbd">R</span> repetir el clip, <span class="kbd">F</span> pantalla completa.</p>
-      <p style="margin:0" class="muted">Los cuestionarios se guardan en este navegador y, si conectas GitHub (botón de arriba), también allí con los resultados y los vídeos del ordenador: así los tienes en cualquier ordenador. Sin GitHub, con Cuestionarios → Exportar los pasas a mano. Los vídeos de la biblioteca se ven desde cualquier sitio; los del ordenador solo en el que los cargaste. Si la página se recarga a media partida, al volver a abrirla puedes continuarla.</p>`);
+      <p style="margin:0" class="muted">Los cuestionarios se guardan en este navegador y, si conectas GitHub (botón de arriba), también allí con los resultados y los vídeos del ordenador: así los tienes en cualquier ordenador. Para que el resto del staff vea y pueda iniciar tus cuestionarios (y tú los suyos): Cuestionarios → <b>Compartir con el staff</b>, o el botón «✓ Guardado en GitHub», y les pasas el enlace. Sin GitHub, con Cuestionarios → Exportar los pasas a mano. Los vídeos de la biblioteca se ven desde cualquier sitio; los del ordenador solo en el que los cargaste. Si la página se recarga a media partida, al volver a abrirla puedes continuarla.</p>`);
   }
 
   // ───────── resultados de partidas anteriores ─────────
