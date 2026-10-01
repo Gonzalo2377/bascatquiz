@@ -2903,9 +2903,9 @@ var qrcode = function() {
   BQ.ord = (lang, r) => lang === 'es' ? r + 'º' : (r === 1 ? '1r' : r === 2 ? '2n' : r === 3 ? '3r' : r === 4 ? '4t' : r + 'è');
 })();
 
-/* BascatQuiz · guardado en GitHub: cuestionarios, resultados y vídeos del ordenador en un repositorio de datos
-   (privado) del staff. Se usa la API de GitHub con un token que solo vive en este navegador y que solo tiene
-   permiso sobre ese repositorio. Siempre se guarda primero aquí; GitHub es la copia para abrirlo en otro ordenador. */
+/* BascatQuiz · guardado en GitHub: cuestionarios, resultados y vídeos del ordenador van al mismo repositorio de la
+   página, en una rama aparte («datos») para que guardar no vuelva a publicar la web cada vez. Se usa la API de GitHub
+   con un token que solo vive en este navegador. Siempre se guarda primero aquí; GitHub es la copia para otro ordenador. */
 (function () {
   'use strict';
   const BQ = window.BQ;
@@ -2913,7 +2913,7 @@ var qrcode = function() {
   const subs = new Set();
   G.on = f => { subs.add(f); return () => subs.delete(f); };
   const set = (st, err) => { G.state = st; G.err = err || ''; subs.forEach(f => { try { f(st); } catch (e) { } }); };
-  G.DEF_REPO = 'Gonzalo2377/bascatquiz-datos';
+  G.DEF_REPO = 'Gonzalo2377/bascatquiz'; G.BRANCH = 'datos';
   G.cfg = () => Object.assign({ token: '', repo: G.DEF_REPO }, BQ.store.get('gh', {}));
   G.setCfg = p => { BQ.store.set('gh', Object.assign(G.cfg(), p)); };
   G.configured = () => { const c = G.cfg(); return !!(c.token && /^[\w.-]+\/[\w.-]+$/.test(c.repo)); };
@@ -2944,33 +2944,40 @@ var qrcode = function() {
   const queue = fn => { const p = chain.then(fn, fn); chain = p.catch(() => { }); return p; };
   const busy = async fn => { G.busy++; set('saving'); try { return await fn(); } finally { G.busy--; if (!G.busy && G.state === 'saving') set('ok'); } };
 
+  // la rama «datos» se crea sola la primera vez (a partir de la principal)
+  async function ensureBranch(j) {
+    try { await api('GET', '/branches/' + G.BRANCH); return; } catch (e) { if (e.status !== 404) throw e; }
+    const main = j.default_branch || 'main', ref = await api('GET', '/git/ref/heads/' + enc(main));
+    await api('POST', '/git/refs', { ref: 'refs/heads/' + G.BRANCH, sha: ref.object.sha });
+  }
   G.check = async () => {
     if (!G.configured()) { set('off'); return false; }
     set('checking');
     try {
       const j = await api('GET', '');
       if (!j.permissions || !j.permissions.push) { set('error', 'el token no tiene permiso para escribir en ' + G.cfg().repo); return false; }
-      G.private = !!j.private; set('ok'); return true;
+      G.private = !!j.private; await ensureBranch(j); set('ok'); return true;
     } catch (e) {
       set('error', e.status === 401 ? 'el token no es válido o ha caducado' : e.status === 404 ? 'no encuentro el repositorio ' + G.cfg().repo + ' (o el token no tiene acceso)' : (e.message || 'sin conexión'));
       return false;
     }
   };
   // carpeta → [{name, path, sha, size}] (vacía si aún no existe)
-  G.list = async dir => { try { const j = await api('GET', '/contents/' + enc(dir)); return Array.isArray(j) ? j.filter(x => x.type === 'file') : []; } catch (e) { if (e.status === 404) return []; throw e; } };
-  G.getJSON = async path => { const j = await api('GET', '/contents/' + enc(path)); return { sha: j.sha, data: JSON.parse(b64dec(j.content || '')) }; };
+  const REF = () => '?ref=' + encodeURIComponent(G.BRANCH);
+  G.list = async dir => { try { const j = await api('GET', '/contents/' + enc(dir) + REF()); return Array.isArray(j) ? j.filter(x => x.type === 'file') : []; } catch (e) { if (e.status === 404) return []; throw e; } };
+  G.getJSON = async path => { const j = await api('GET', '/contents/' + enc(path) + REF()); return { sha: j.sha, data: JSON.parse(b64dec(j.content || '')) }; };
   G.putJSON = (path, obj, sha, msg, o = {}) => queue(() => busy(async () => {
-    const body = { message: msg || 'BascatQuiz: ' + path, content: b64enc(JSON.stringify(obj, null, 1)) }; if (sha) body.sha = sha;
+    const body = { message: msg || 'BascatQuiz: ' + path, content: b64enc(JSON.stringify(obj, null, 1)), branch: G.BRANCH }; if (sha) body.sha = sha;
     const j = await api('PUT', '/contents/' + enc(path), body, o); return j.content.sha;
   }));
-  G.del = (path, sha, msg) => queue(() => busy(async () => { await api('DELETE', '/contents/' + enc(path), { message: msg || 'BascatQuiz: borrar ' + path, sha }); }));
+  G.del = (path, sha, msg) => queue(() => busy(async () => { await api('DELETE', '/contents/' + enc(path), { message: msg || 'BascatQuiz: borrar ' + path, sha, branch: G.BRANCH }); }));
   G.putBlob = (path, blob, msg) => queue(() => busy(async () => {
-    let sha; try { const j = await api('GET', '/contents/' + enc(path)); sha = j.sha; } catch (e) { if (e.status !== 404) throw e; }
+    let sha; try { const j = await api('GET', '/contents/' + enc(path) + REF()); sha = j.sha; } catch (e) { if (e.status !== 404) throw e; }
     if (sha) return sha; // ya estaba
-    const j = await api('PUT', '/contents/' + enc(path), { message: msg || 'BascatQuiz: vídeo ' + path, content: await blobB64(blob) });
+    const j = await api('PUT', '/contents/' + enc(path), { message: msg || 'BascatQuiz: vídeo ' + path, content: await blobB64(blob), branch: G.BRANCH });
     return j.content.sha;
   }));
-  G.getBlob = async (path, type) => { const r = await api('GET', '/contents/' + enc(path), null, { accept: 'application/vnd.github.raw+json', raw: true }); const b = await r.blob(); return type ? new Blob([b], { type }) : b; };
+  G.getBlob = async (path, type) => { const r = await api('GET', '/contents/' + enc(path) + REF(), null, { accept: 'application/vnd.github.raw+json', raw: true }); const b = await r.blob(); return type ? new Blob([b], { type }) : b; };
 })();
 
 /* BascatQuiz · Preparar: cuestionarios, preguntas, clips (biblioteca de BascatApp u ordenador), dónde para cada clip y las respuestas */
@@ -3173,12 +3180,12 @@ var qrcode = function() {
     const c = BQ.gh.cfg(), st = BQ.gh.state, conn = BQ.gh.configured();
     const local = E.quiz.qs.filter(x => x.clip && x.clip.src !== 'lib' && !x.clip.gh).length;
     const m = BQ.modal('Guardar en GitHub', `
-      <p style="margin:0 0 10px">Los cuestionarios se guardan siempre en este navegador. Conectando un repositorio de GitHub tuyo, además se guarda allí una copia de <b>los cuestionarios, los resultados y los vídeos que cargues desde el ordenador</b>, y al abrir esta página en otro ordenador (con el mismo token) aparece todo.</p>
-      ${st === 'error' ? `<p class="warns">${esc(BQ.gh.err)}</p>` : st === 'ok' || st === 'saving' ? `<p class="okmsg">Conectado a ${esc(c.repo)}${BQ.gh.private ? ' (privado)' : ' · ojo: este repositorio es público'}</p>` : ''}
+      <p style="margin:0 0 10px">Los cuestionarios se guardan siempre en este navegador. Conectando GitHub, además se guarda una copia de <b>los cuestionarios, los resultados y los vídeos que cargues desde el ordenador</b> en el mismo repositorio del quiz (rama «datos»), y al abrir la página en otro ordenador con el token aparece todo.</p>
+      ${st === 'error' ? `<p class="warns">${esc(BQ.gh.err)}</p>` : st === 'ok' || st === 'saving' ? `<p class="okmsg">Conectado a ${esc(c.repo)} · rama ${esc(BQ.gh.BRANCH)}</p>` : ''}
       ${conn ? '' : `<ol style="margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:6px">
-        <li>Crea un repositorio <b>privado</b> llamado <b>bascatquiz-datos</b> en <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a> (vacío, sin README).</li>
-        <li>Crea un token en <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>: en <i>Repository access</i> elige <i>Only select repositories</i> → <b>bascatquiz-datos</b>; en <i>Permissions → Repository permissions</i> pon <b>Contents: Read and write</b>; caducidad, la más larga. Genera y copia el token.</li>
-        <li>Pégalo aquí debajo y pulsa Conectar.</li></ol>`}
+        <li>Crea un token en <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>: en <i>Repository access</i> elige <i>Only select repositories</i> → <b>bascatquiz</b>; en <i>Permissions → Repository permissions</i> pon <b>Contents: Read and write</b>; caducidad, la más larga. Genera y copia el token.</li>
+        <li>Pégalo aquí debajo y pulsa Conectar. En cada ordenador que uses, lo mismo (una sola vez).</li></ol>`}
+      <p class="muted" style="margin:0 0 10px;font-size:13px">El repositorio es público: lo que se guarda (preguntas, resultados con nombres y puntos, vídeos) se puede ver en GitHub.</p>
       <div class="f"><label for="ghRepo">Repositorio</label><input type="text" id="ghRepo" class="inp" value="${esc(c.repo)}" spellcheck="false"></div>
       <div class="f"><label for="ghTok">Token</label><input type="password" id="ghTok" class="inp" value="${esc(c.token)}" placeholder="github_pat_…" autocomplete="off" spellcheck="false"><span class="hint" style="margin:0">El token se queda solo en este navegador; nunca va en la página ni en el repositorio.</span></div>
       ${local && (st === 'ok' || st === 'saving') ? `<p class="muted" style="margin:0">${local} ${local === 1 ? 'clip de este cuestionario se subirá' : 'clips de este cuestionario se subirán'} a GitHub al guardar.</p>` : ''}`,
