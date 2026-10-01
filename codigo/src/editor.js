@@ -12,9 +12,9 @@
   function save(now) {
     clearTimeout(saveT);
     const go = () => {
-      const q = E.quiz; q.updated = Date.now();
+      const q = E.quiz; q.updated = Date.now(); const me = BQ.gh.me(); if (me) { if (!q.author) q.author = me; q.by = me; }
       if (!BQ.store.set('quiz.' + q.id, q)) BQ.toast('No se ha podido guardar en este navegador (¿sin espacio?). Exporta el cuestionario.');
-      const list = index().filter(x => x.id !== q.id); list.unshift({ id: q.id, title: q.title, updated: q.updated, n: q.qs.length });
+      const list = index().filter(x => x.id !== q.id); list.unshift({ id: q.id, title: q.title, updated: q.updated, n: q.qs.length, author: q.author || '', by: q.by || '' });
       writeIndex(list); BQ.store.set('cur', q.id);
       ghLater(q.id);
     };
@@ -24,8 +24,10 @@
   window.addEventListener('pagehide', () => { if (saveT) { clearTimeout(saveT); save(true); } ghFlush(true); });
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { if (saveT) { clearTimeout(saveT); save(true); } ghFlush(); } else ghSyncSoon(); });
   E.save = save;
+  // un cuestionario nuevo que se ha quedado vacío no se guarda en la lista al cambiar a otro
+  function dropEmpty(keep) { const q = E.quiz; if (q && q.id !== keep && !q.qs.length && /^Nuevo cuestionario$/.test(q.title)) { BQ.store.del('quiz.' + q.id); writeIndex(index().filter(x => x.id !== q.id)); } }
   function openQuiz(id) {
-    const q = BQ.store.get('quiz.' + id, null); if (!q) return false;
+    const q = BQ.store.get('quiz.' + id, null); if (!q) return false; dropEmpty(id);
     E.quiz = fixQuiz(q); E.sel = (E.quiz.qs[0] || {}).id || null; BQ.store.set('cur', id);
     renderAll(); if (BQ.gh && BQ.gh.ok()) setTimeout(fetchVideos, 0); return true;
   }
@@ -39,13 +41,13 @@
     }
     return q;
   }
-  function newQuiz(title) { E.quiz = BQ.newQuiz(title, E.quiz ? L() : 'ca'); E.sel = null; save(true); renderAll(); }
+  function newQuiz(title) { dropEmpty(); E.quiz = BQ.newQuiz(title, E.quiz ? L() : 'ca'); E.quiz.author = BQ.gh.me(); E.sel = null; save(true); renderAll(); }
   function importQuiz(text, name) {
     let q; try { q = JSON.parse(text); } catch (e) { BQ.toast('Ese archivo no es un cuestionario válido'); return; }
     if (!q || !Array.isArray(q.qs)) { BQ.toast('Ese archivo no es un cuestionario de BascatQuiz'); return; }
     q = fixQuiz(q);
     if (BQ.store.get('quiz.' + q.id, null)) q.id = BQ.uid(8); // no pisar uno que ya existe
-    E.quiz = q; E.sel = (q.qs[0] || {}).id || null; save(true); renderAll();
+    dropEmpty(q.id); E.quiz = q; E.sel = (q.qs[0] || {}).id || null; save(true); renderAll();
     const miss = q.qs.filter(x => x.clip && !BQ.resolveClip(x.clip)).length;
     BQ.toast(`«${q.title}» importado: ${q.qs.length} preguntas` + (miss ? ` · faltan ${miss} vídeos (cárgalos desde la biblioteca o el ordenador)` : ''), 6000);
     if (miss && !BQ.lib.rows) tryLibQuiet();
@@ -105,7 +107,7 @@
   }
   function takeRemote(id, r) {
     const q = fixQuiz(r.data); BQ.store.set('quiz.' + id, q);
-    const list = index().filter(x => x.id !== id); list.push({ id, title: q.title, updated: q.updated, n: q.qs.length }); list.sort((a, b) => (b.updated || 0) - (a.updated || 0)); writeIndex(list);
+    const list = index().filter(x => x.id !== id); list.push({ id, title: q.title, updated: q.updated, n: q.qs.length, author: q.author || '', by: q.by || '' }); list.sort((a, b) => (b.updated || 0) - (a.updated || 0)); writeIndex(list);
     const s = shasOf(); s[id] = { sha: r.sha, at: q.updated || 0 }; BQ.store.set('ghsha', s);
     return q;
   }
@@ -113,6 +115,7 @@
   const typing = () => { const a = document.activeElement; return a && (/INPUT|TEXTAREA|SELECT/.test(a.tagName)); };
   let syncing = null, lastSync = 0;
   function ghSyncSoon() { if (BQ.gh.configured() && Date.now() - lastSync > 30000) ghSync(); }
+  setInterval(() => { if (document.visibilityState === 'visible' && !E.live && BQ.gh.configured() && Date.now() - lastSync > 55000) ghSync(); }, 60000);
   // traer de GitHub lo nuevo y subir lo que solo está aquí
   function ghSync() { if (!syncing) syncing = doSync().finally(() => { syncing = null; lastSync = Date.now(); }); return syncing; }
   async function doSync() {
@@ -120,7 +123,8 @@
     if (!BQ.gh.ok() && !(await BQ.gh.check())) return;
     let remote; try { remote = await BQ.gh.list(QDIR); } catch (e) { ghError(e); return; }
     const rem = new Map(remote.filter(f => /\.json$/.test(f.name)).map(f => [f.name.replace(/\.json$/, ''), f]));
-    let cur = null;
+    let cur = null, curBy = '';
+    const news = [], firstTime = !Object.keys(shasOf()).length;
     // borrados aquí sin conexión: borrarlos también allí
     const dels = BQ.store.get('ghdel', []);
     for (const id of dels.slice()) { const f = rem.get(id); try { if (f) await BQ.gh.del(f.path, f.sha, 'Borrar cuestionario'); rem.delete(id); dels.splice(dels.indexOf(id), 1); } catch (e) { } }
@@ -139,7 +143,7 @@
       const s = shasOf()[id]; if (s && s.sha === f.sha) continue;
       let r; try { r = await BQ.gh.getJSON(f.path); } catch (e) { continue; }
       const local = BQ.store.get('quiz.' + id, null);
-      if (!local || (r.data.updated || 0) >= (local.updated || 0)) { takeRemote(id, r); if (E.quiz && E.quiz.id === id) cur = cur || 'changed'; }
+      if (!local || (r.data.updated || 0) >= (local.updated || 0)) { takeRemote(id, r); if (E.quiz && E.quiz.id === id) { cur = cur || 'changed'; curBy = r.data.by; } if (!local) news.push(r.data); }
       else { const s2 = shasOf(); s2[id] = { sha: r.sha, at: r.data.updated || 0 }; BQ.store.set('ghsha', s2); }
     }
     // lo que solo está aquí o es más nuevo aquí
@@ -148,8 +152,11 @@
     // el cuestionario abierto
     const others = index().filter(x => !pristine(BQ.store.get('quiz.' + x.id, null)));
     if (cur === 'gone') { const n = others[0]; if (!n || !openQuiz(n.id)) newQuiz('Nuevo cuestionario'); BQ.toast('Ese cuestionario se borró en otro ordenador'); }
-    else if (cur === 'changed' && !typing()) { const sel = E.sel; openQuiz(E.quiz.id); if (E.quiz.qs.some(x => x.id === sel)) select(sel); }
+    else if (cur === 'changed' && !typing()) { const sel = E.sel; openQuiz(E.quiz.id); if (E.quiz.qs.some(x => x.id === sel)) select(sel); if (curBy && curBy !== BQ.gh.me()) BQ.toast(`«${E.quiz.title}» actualizado con los cambios de ${curBy}`, 4500); }
     else if (E.quiz && pristine(E.quiz) && others.length) { const old = E.quiz.id; openQuiz(others[0].id); BQ.store.del('quiz.' + old); writeIndex(index().filter(x => x.id !== old)); }
+    const mine = BQ.gh.me(), fromOthers = news.filter(q => !q.deleted && q.author !== mine || !mine);
+    if (fromOthers.length && !firstTime) BQ.toast(fromOthers.length === 1 ? `Nuevo cuestionario${fromOthers[0].author ? ' de ' + fromOthers[0].author : ''}: «${fromOthers[0].title}» (en Cuestionarios)` : `${fromOthers.length} cuestionarios nuevos del staff (en Cuestionarios)`, 5000);
+    else if (news.length && firstTime) BQ.toast(`${news.length} ${news.length === 1 ? 'cuestionario del staff' : 'cuestionarios del staff'} en Cuestionarios`, 4000);
     fetchVideos();
   }
   // vídeos guardados en GitHub que faltan en este ordenador (para el cuestionario abierto)
@@ -194,24 +201,32 @@
     const T = { off: 'Solo en este navegador', checking: 'Conectando con GitHub…', ok: '✓ Guardado en GitHub', saving: 'Guardando en GitHub…', error: '⚠ GitHub: sin guardar' };
     b.textContent = T[st] || T.off; b.classList.toggle('warn', st === 'error' || st === 'off'); b.title = st === 'error' ? BQ.gh.err : 'Dónde se guardan los cuestionarios';
   }
-  function ghWindow() {
+  function ghWindow(intro) {
     const c = BQ.gh.cfg(), st = BQ.gh.state, conn = BQ.gh.configured();
     const local = E.quiz.qs.filter(x => x.clip && x.clip.src !== 'lib' && !x.clip.gh).length;
-    const m = BQ.modal('Guardar en GitHub', `
+    const m = BQ.modal(intro ? 'Bienvenido al staff' : 'Guardar en GitHub', `
+      ${intro ? '<p class="okmsg" style="margin:0 0 10px">Ya estás conectado a los cuestionarios del staff. Escribe tu nombre y pulsa Guardar cambios.</p>' : ''}
       <p style="margin:0 0 10px">Los cuestionarios se guardan siempre en este navegador. Conectando GitHub, además se guarda una copia de <b>los cuestionarios, los resultados y los vídeos que cargues desde el ordenador</b> en el mismo repositorio del quiz (rama «datos»), y al abrir la página en otro ordenador con el token aparece todo.</p>
       ${st === 'error' ? `<p class="warns">${esc(BQ.gh.err)}</p>` : st === 'ok' || st === 'saving' ? `<p class="okmsg">Conectado a ${esc(c.repo)} · rama ${esc(BQ.gh.BRANCH)}</p>` : ''}
       ${conn ? '' : `<ol style="margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:6px">
         <li>Crea un token en <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>: en <i>Repository access</i> elige <i>Only select repositories</i> → <b>bascatquiz</b>; en <i>Permissions → Repository permissions</i> pon <b>Contents: Read and write</b>; caducidad, la más larga. Genera y copia el token.</li>
         <li>Pégalo aquí debajo y pulsa Conectar. En cada ordenador que uses, lo mismo (una sola vez).</li></ol>`}
       <p class="muted" style="margin:0 0 10px;font-size:13px">El repositorio es público: lo que se guarda (preguntas, resultados con nombres y puntos, vídeos) se puede ver en GitHub.</p>
+      <div class="f"><label for="ghName">Tu nombre (así se ve quién ha hecho cada cuestionario)</label><input type="text" id="ghName" class="inp" value="${esc(c.name || '')}" maxlength="24" placeholder="Ej.: Gonzalo"></div>
       <div class="f"><label for="ghRepo">Repositorio</label><input type="text" id="ghRepo" class="inp" value="${esc(c.repo)}" spellcheck="false"></div>
       <div class="f"><label for="ghTok">Token</label><input type="password" id="ghTok" class="inp" value="${esc(c.token)}" placeholder="github_pat_…" autocomplete="off" spellcheck="false"><span class="hint" style="margin:0">El token se queda solo en este navegador; nunca va en la página ni en el repositorio.</span></div>
-      ${local && (st === 'ok' || st === 'saving') ? `<p class="muted" style="margin:0">${local} ${local === 1 ? 'clip de este cuestionario se subirá' : 'clips de este cuestionario se subirán'} a GitHub al guardar.</p>` : ''}`,
+      ${local && (st === 'ok' || st === 'saving') ? `<p class="muted" style="margin:0">${local} ${local === 1 ? 'clip de este cuestionario se subirá' : 'clips de este cuestionario se subirán'} a GitHub al guardar.</p>` : ''}
+      ${st === 'ok' || st === 'saving' ? `<hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+        <h3 style="font-size:15px;margin-bottom:6px">Compartir con el resto del staff</h3>
+        <p style="margin:0 0 8px">Pásales este enlace (por privado). Al abrirlo quedan conectados y ven todos los cuestionarios del staff: pueden prepararlos, cambiarlos e iniciarlos, y tú ves los suyos.</p>
+        <div class="row"><input type="text" id="ghInv" class="inp" readonly value="${esc(BQ.gh.inviteLink())}" style="flex:1;min-width:0;font-size:12px"><button class="btn sm" id="ghInvCp">Copiar</button></div>
+        <p class="hint" style="margin:6px 0 0">Quien tenga el enlace puede guardar en el repositorio: no lo pongas en ningún grupo con jugadores.</p>` : ''}`,
       `${conn ? '<button class="btn danger" data-off>Desconectar este ordenador</button><span class="grow"></span><button class="btn" data-sync>Sincronizar ahora</button>' : '<span class="grow"></span>'}<button class="btn pri" data-go>${conn ? 'Guardar cambios' : 'Conectar'}</button>`);
     m.querySelector('[data-go]').onclick = async () => {
-      BQ.gh.setCfg({ repo: m.querySelector('#ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$|\/$/g, ''), token: m.querySelector('#ghTok').value.trim() });
+      BQ.gh.setCfg({ name: m.querySelector('#ghName').value.trim(), repo: m.querySelector('#ghRepo').value.trim().replace(/^https?:\/\/github\.com\//, '').replace(/\.git$|\/$/g, ''), token: m.querySelector('#ghTok').value.trim() });
       m.close(); if (await BQ.gh.check()) { BQ.toast('Conectado: sincronizando…'); await ghSync(); BQ.toast('Todo guardado en GitHub'); } else ghWindow();
     };
+    const cp = m.querySelector('#ghInvCp'); if (cp) cp.onclick = async () => { const i = m.querySelector('#ghInv'); try { await navigator.clipboard.writeText(i.value); BQ.toast('Enlace copiado'); } catch (e) { i.select(); BQ.toast('Copia el enlace seleccionado (Ctrl+C)'); } };
     const off = m.querySelector('[data-off]'); if (off) off.onclick = () => { BQ.gh.setCfg({ token: '' }); BQ.gh.check(); m.close(); BQ.toast('Este ordenador ya no guarda en GitHub (lo que ya está allí no se toca)'); };
     const sy = m.querySelector('[data-sync]'); if (sy) sy.onclick = async () => { m.close(); await ghSync(); await pullResults(); BQ.toast(BQ.gh.ok() ? 'Sincronizado con GitHub' : 'No se ha podido sincronizar'); };
   }
@@ -268,7 +283,7 @@
   <main class="mainp" id="main"></main>
 </div>`;
     // menús
-    $$('.menu > .btn').forEach(b => b.onclick = e => { e.stopPropagation(); const m = b.parentElement, was = m.classList.contains('open'); closeMenus(); if (!was) { if (m.id === 'mQuiz') renderQuizMenu(); m.classList.add('open'); } });
+    $$('.menu > .btn').forEach(b => b.onclick = e => { e.stopPropagation(); const m = b.parentElement, was = m.classList.contains('open'); closeMenus(); if (!was) { if (m.id === 'mQuiz') { renderQuizMenu(); if (BQ.gh.configured() && Date.now() - lastSync > 8000) ghSync().then(() => { if (m.classList.contains('open')) renderQuizMenu(); }); } m.classList.add('open'); } });
     document.addEventListener('click', e => { if (!e.target.closest('.menu .pop')) closeMenus(); });
     $('#qTitle').oninput = e => { E.quiz.title = e.target.value; save(); };
     $('#qLang').onchange = e => { E.quiz.lang = e.target.value; save(); renderMain(); };
@@ -289,10 +304,13 @@
     document.addEventListener('keydown', onKey);
   }
   function closeMenus() { $$('.menu.open').forEach(m => m.classList.remove('open')); }
+  function ago(t) { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'ahora' : m < 60 ? `hace ${m} min` : m < 1440 ? `hace ${Math.round(m / 60)} h` : new Date(t).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }); }
   function renderQuizMenu() {
-    const list = index();
-    $('#mQuizPop').innerHTML = `<div class="cap">Mis cuestionarios</div>` +
-      list.map(x => `<button data-open="${esc(x.id)}" class="${x.id === E.quiz.id ? 'cur' : ''}">${x.id === E.quiz.id ? '● ' : ''}${esc(x.title)} <span class="muted" style="margin-left:auto">${x.n || 0}</span></button>`).join('') +
+    const list = index().slice().sort((a, b) => (b.updated || 0) - (a.updated || 0));
+    const shared = BQ.gh.configured();
+    $('#mQuizPop').innerHTML = `<div class="cap">${shared ? 'Cuestionarios del staff' : 'Mis cuestionarios'}</div>` +
+      list.map(x => `<button data-open="${esc(x.id)}" class="qm ${x.id === E.quiz.id ? 'cur' : ''}"><span class="qmt">${x.id === E.quiz.id ? '● ' : ''}${esc(x.title)}</span><span class="qms muted">${x.n || 0} preg.${x.author ? ' · de ' + esc(x.author) : ''}${x.updated ? ' · ' + esc(ago(x.updated)) : ''}${x.by && x.by !== x.author ? ' (' + esc(x.by) + ')' : ''}</span></button>`).join('') +
+      (shared && BQ.gh.state === 'checking' ? '<div class="cap">Buscando en GitHub…</div>' : '') +
       `<hr><button data-a="new">Nuevo cuestionario</button><button data-a="dup">Duplicar este</button>
        <label>Importar (.json)…<input type="file" accept=".json,application/json" id="fImp"></label>
        <button data-a="exp">Exportar este (.json)</button><hr><button data-a="del" class="danger">Borrar este cuestionario…</button>`;
@@ -664,14 +682,15 @@
   }
 
   // ───────── arranque del editor ─────────
-  E.boot = async () => {
+  E.boot = async (o = {}) => {
     shell();
     const cur = BQ.store.get('cur', null);
     if (!(cur && openQuiz(cur))) { const first = index()[0]; if (!(first && openQuiz(first.id))) newQuiz('Nuevo cuestionario'); }
     const n = await BQ.loadCached(); if (n) { renderList(); renderMain(); }
     if (E.quiz.qs.some(q => q.clip && !BQ.resolveClip(q.clip))) tryLibQuiet();
     if (BQ.Live.pending()) BQ.Live.offerResume();
-    if (BQ.gh.configured()) ghSync();
+    if (BQ.gh.configured()) { await ghSync(); if (o.invited) ghWindow(true); }
+    else if (o.invited === false) BQ.toast('El enlace de invitación no es válido');
   };
   E.refresh = () => { renderList(); renderMain(); };
 })();

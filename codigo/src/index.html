@@ -53,6 +53,10 @@ h1, h2, h3 { margin: 0; font-family: var(--f); font-weight: 700; text-wrap: bala
 .menu .pop button, .menu .pop label { display: flex; gap: 8px; align-items: center; width: 100%; text-align: left; border: 0; background: transparent; padding: 8px 10px; border-radius: 7px; cursor: pointer }
 .menu .pop button:hover, .menu .pop label:hover { background: var(--accent-soft) }
 .menu .pop button.cur { font-weight: 700 }
+.menu .pop button.qm { flex-direction: column; align-items: flex-start; gap: 0 }
+.menu .pop .qmt { font-weight: 600 }
+.menu .pop .qms { font-size: 12px }
+.menu .pop { min-width: 300px }
 .menu .pop input[type=file] { display: none }
 .menu .pop hr { border: 0; border-top: 1px solid var(--line); margin: 5px 4px }
 .menu .pop .cap { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 6px 10px 2px }

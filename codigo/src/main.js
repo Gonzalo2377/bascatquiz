@@ -3,8 +3,11 @@
   'use strict';
   const BQ = window.BQ;
   const h = decodeURIComponent(location.hash.replace(/^#/, ''));
-  const m = h.match(/^([A-Za-z0-9]{5})(?:\.(local))?$/);
-  if (m) BQ.P.boot(m[1], m[2] ? 'local' : 'supa');
+  const m = h.match(/^([A-Za-z0-9]{5})(?:\.(local))?$/), inv = h.match(/^staff-([A-Za-z0-9_-]+)$/);
+  if (inv) { // enlace de invitación del staff: queda conectado a GitHub y se quita el token de la dirección
+    const ok = BQ.gh.acceptInvite(inv[1]); history.replaceState(null, '', location.pathname + location.search); BQ.E.boot({ invited: ok });
+  }
+  else if (m) BQ.P.boot(m[1], m[2] ? 'local' : 'supa');
   else if (/^(jugar|join|entrar|j)$/i.test(h)) BQ.P.boot('', 'supa');
   else if (window.matchMedia('(max-width: 760px)').matches && !BQ.store.get('quizzes', []).length) chooser();
   else BQ.E.boot();

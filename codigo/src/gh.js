@@ -13,6 +13,12 @@
   G.setCfg = p => { BQ.store.set('gh', Object.assign(G.cfg(), p)); };
   G.configured = () => { const c = G.cfg(); return !!(c.token && /^[\w.-]+\/[\w.-]+$/.test(c.repo)); };
   G.ok = () => G.state === 'ok' || G.state === 'saving';
+  // enlace para que otro del staff quede conectado con un clic (lleva el token: solo para el staff)
+  const b64u = str => btoa(unescape(encodeURIComponent(str))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const unb64u = str => decodeURIComponent(escape(atob(str.replace(/-/g, '+').replace(/_/g, '/'))));
+  G.inviteLink = () => { const c = G.cfg(); return BQ.joinBase() + '#staff-' + b64u(JSON.stringify({ r: c.repo, t: c.token })); };
+  G.acceptInvite = code => { try { const j = JSON.parse(unb64u(code)); if (j && j.t) { G.setCfg({ token: j.t, repo: j.r || G.DEF_REPO }); return true; } } catch (e) { } return false; };
+  G.me = () => (G.cfg().name || '').trim();
   G.fail = e => set('error', e && e.status === 403 ? 'el token no tiene permiso para guardar (en el token: Contents → Read and write)' : e && e.status === 401 ? 'el token no es válido o ha caducado' : (e && e.message) || 'sin conexión con GitHub');
 
   // texto ↔ base64 (UTF-8) y archivos ↔ base64
