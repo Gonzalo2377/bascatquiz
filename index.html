@@ -3683,7 +3683,7 @@ var qrcode = function() {
   const HINT = {
     lobby: 'Los jugadores entran con el QR o el código. Toca un nombre para sacarlo de la partida. Cuando estén todos, empieza.',
     play: 'El clip se para solo en el momento elegido. Siguiente = saltar a la parada.',
-    q: 'Respondiendo… Se cierra al acabar el tiempo o cuando han respondido todos. Siguiente = cerrar ya.',
+    q: 'Respondiendo… Puedes repetir el clip mientras tanto. Se cierra al acabar el tiempo o cuando han respondido todos. Siguiente = cerrar ya.',
     closed: 'Respuestas cerradas. Cuando quieras, enseña la respuesta correcta.',
     reveal: 'Se ve cómo acaba la jugada. Repítelo o comenta, y luego pasa a la clasificación.',
     board: 'Clasificación después de esta pregunta.',
@@ -3696,7 +3696,7 @@ var qrcode = function() {
     const x = q(), ph = G.ph;
     $('#lHint').textContent = HINT[ph];
     const nb = $('#lNext'); nb.textContent = ph === 'board' && G.i + 1 >= G.qs.length ? 'Podio ▶' : NEXT[ph]; nb.classList.toggle('pulse', ph === 'closed' || (ph === 'lobby' && G.order.length > 0));
-    $('#lPrev').hidden = !(ph === 'reveal' || ph === 'closed');
+    $('#lPrev').hidden = !(ph === 'q' || ph === 'closed' || ph === 'reveal'); // en cuanto el clip ha llegado a la parada
     const panel = $('#lPanel');
     if (ph === 'lobby' || ph === 'board' || ph === 'end') { panel.hidden = false; renderPanel(); }
     else panel.hidden = true;
