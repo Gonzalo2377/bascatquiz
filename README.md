@@ -6,3 +6,5 @@ Preguntas sobre clips de partido, con los jugadores respondiendo desde el móvil
 - **Jugadores:** escanean el QR de la pantalla grande o entran en esta misma dirección con el código de la partida.
 
 Todo está en `index.html`. Los cuestionarios se guardan en el navegador del staff (se pueden exportar e importar en .json).
+
+Para tener los cuestionarios, los resultados y los vídeos en cualquier ordenador, conecta un repositorio de datos privado desde el botón de guardado (arriba a la derecha).
