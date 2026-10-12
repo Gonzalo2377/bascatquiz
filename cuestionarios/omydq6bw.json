@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791827173708,
+ "updated": 1791827178828,
  "qs": [
   {
    "id": "f486bi",
@@ -237,7 +237,7 @@
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
     "dur": 20.91
    },
-   "from": 0,
+   "from": 0.46,
    "stop": 18.41,
    "to": null,
    "ctx": "",
