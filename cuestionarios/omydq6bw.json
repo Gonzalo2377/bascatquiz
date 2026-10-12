@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826816528,
+ "updated": 1791826840883,
  "qs": [
   {
    "id": "f486bi",
@@ -200,17 +200,17 @@
     "dur": 18.71
    },
    "from": 0,
-   "stop": 16.21,
+   "stop": 12.49,
    "to": null,
    "ctx": "",
-   "text": "Com acaba la jugada?",
+   "text": "Qui agafa rebot?",
    "opts": [
     {
-     "t": "",
+     "t": "Javi",
      "ok": false
     },
     {
-     "t": "",
+     "t": "Turru",
      "ok": false
     },
     {
