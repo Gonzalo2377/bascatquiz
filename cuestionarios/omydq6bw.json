@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828986644,
+ "updated": 1791829000236,
  "qs": [
   {
    "id": "f486bi",
@@ -276,25 +276,25 @@
     "dur": 12.62
    },
    "from": 0.15,
-   "stop": 10.12,
+   "stop": 1.92,
    "to": null,
    "ctx": "",
    "text": "Quants rebots ens agafen?",
    "opts": [
     {
-     "t": "",
+     "t": "0",
      "ok": false
     },
     {
-     "t": "",
+     "t": "1",
      "ok": false
     },
     {
-     "t": "",
+     "t": "2",
      "ok": false
     },
     {
-     "t": "",
+     "t": "3",
      "ok": false
     }
    ],
