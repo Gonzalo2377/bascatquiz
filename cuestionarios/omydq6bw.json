@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828962075,
+ "updated": 1791828986644,
  "qs": [
   {
    "id": "f486bi",
@@ -265,6 +265,44 @@
    "expl": ""
   },
   {
+   "id": "eso5i8",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791828674/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/zcxf871spk6b93wbrggk.mp4",
+    "name": "aaaa",
+    "folder": "Zones",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 12.62
+   },
+   "from": 0.15,
+   "stop": 10.12,
+   "to": null,
+   "ctx": "",
+   "text": "Quants rebots ens agafen?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
    "id": "n28ni9",
    "on": true,
    "clip": {
@@ -409,44 +447,6 @@
     },
     {
      "t": "2p",
-     "ok": false
-    }
-   ],
-   "lim": 20,
-   "pts": 1,
-   "expl": ""
-  },
-  {
-   "id": "eso5i8",
-   "on": true,
-   "clip": {
-    "src": "lib",
-    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791828674/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/zcxf871spk6b93wbrggk.mp4",
-    "name": "aaaa",
-    "folder": "Zones",
-    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 12.62
-   },
-   "from": 0,
-   "stop": 10.12,
-   "to": null,
-   "ctx": "",
-   "text": "Com acaba la jugada?",
-   "opts": [
-    {
-     "t": "",
-     "ok": false
-    },
-    {
-     "t": "",
-     "ok": false
-    },
-    {
-     "t": "",
-     "ok": false
-    },
-    {
-     "t": "",
      "ok": false
     }
    ],
