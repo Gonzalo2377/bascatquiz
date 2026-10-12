@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828929107,
+ "updated": 1791828941678,
  "qs": [
   {
    "id": "f486bi",
@@ -408,7 +408,7 @@
      "ok": true
     },
     {
-     "t": "",
+     "t": "2p",
      "ok": false
     }
    ],
