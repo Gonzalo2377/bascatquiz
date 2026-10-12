@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828950252,
+ "updated": 1791828962075,
  "qs": [
   {
    "id": "f486bi",
@@ -425,10 +425,10 @@
     "name": "aaaa",
     "folder": "Zones",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 12
+    "dur": 12.62
    },
    "from": 0,
-   "stop": null,
+   "stop": 10.12,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
