@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826695633,
+ "updated": 1791826715234,
  "qs": [
   {
    "id": "f486bi",
@@ -127,22 +127,22 @@
    "stop": 4.95,
    "to": null,
    "ctx": "",
-   "text": "Qui ",
+   "text": "Qui pilla el rebot?",
    "opts": [
     {
-     "t": "",
+     "t": "Ordo",
+     "ok": true
+    },
+    {
+     "t": "Gonza",
      "ok": false
     },
     {
-     "t": "",
+     "t": "Ori",
      "ok": false
     },
     {
-     "t": "",
-     "ok": false
-    },
-    {
-     "t": "",
+     "t": "Aigua i fora",
      "ok": false
     }
    ],
@@ -159,10 +159,10 @@
     "name": "s",
     "folder": "CAA",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 18
+    "dur": 18.48
    },
    "from": 0,
-   "stop": null,
+   "stop": 15.98,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
