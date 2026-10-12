@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828890446,
+ "updated": 1791828904493,
  "qs": [
   {
    "id": "f486bi",
@@ -359,19 +359,19 @@
    "opts": [
     {
      "t": "1 = trans",
-     "ok": true
+     "ok": false
     },
     {
      "t": "2 = stagger",
      "ok": false
     },
     {
-     "t": "3 = ",
+     "t": "3 = spanish",
      "ok": false
     },
     {
-     "t": " ",
-     "ok": false
+     "t": " 6 = 3p",
+     "ok": true
     }
    ],
    "lim": 20,
@@ -387,10 +387,10 @@
     "name": "flas",
     "folder": "BI",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 12
+    "dur": 12.14
    },
    "from": 0,
-   "stop": null,
+   "stop": 9.64,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
