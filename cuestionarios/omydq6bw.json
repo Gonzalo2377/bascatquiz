@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791827229309,
+ "updated": 1791827259509,
  "qs": [
   {
    "id": "f486bi",
@@ -253,10 +253,10 @@
     },
     {
      "t": "Sowkin falta rebuda",
-     "ok": false
+     "ok": true
     },
     {
-     "t": "",
+     "t": "Perdua Sowkin",
      "ok": false
     }
    ],
@@ -273,10 +273,10 @@
     "name": "sss",
     "folder": "Roff",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 25
+    "dur": 25.33
    },
-   "from": 0,
-   "stop": null,
+   "from": 7.38,
+   "stop": 22.83,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
