@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826644419,
+ "updated": 1791826656519,
  "qs": [
   {
    "id": "f486bi",
@@ -33,7 +33,7 @@
     },
     {
      "t": "Reject Sitjes",
-     "ok": false
+     "ok": true
     },
     {
      "t": "Tir Poch",
@@ -75,7 +75,7 @@
     },
     {
      "t": "Martori out",
-     "ok": false
+     "ok": true
     }
    ],
    "lim": 20,
@@ -121,10 +121,10 @@
     "name": "a",
     "folder": "CAA",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 17
+    "dur": 17.72
    },
    "from": 0,
-   "stop": null,
+   "stop": 15.22,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
