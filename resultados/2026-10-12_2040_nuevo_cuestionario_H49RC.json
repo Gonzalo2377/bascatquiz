@@ -1,0 +1,948 @@
+{
+ "date": 1791830423386,
+ "title": "Nuevo cuestionario",
+ "code": "H49RC",
+ "qs": [
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Pèrdua passe esquena",
+    "T3 hector",
+    "Reject Sitjes",
+    "Tir Poch"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Tir de Sitjes",
+    "Poch T3",
+    "Falta atac Sow",
+    "Martori out"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Qui es queixa més?",
+   "ctx": "",
+   "opts": [
+    "Ordo",
+    "Curva"
+   ],
+   "ok": [
+    1
+   ]
+  },
+  {
+   "text": "Qui pilla el rebot?",
+   "ctx": "",
+   "opts": [
+    "Ordo",
+    "Gonza",
+    "Ori",
+    "Aigua i fora"
+   ],
+   "ok": [
+    0
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Tir Poch",
+    "Perdua",
+    "Roff",
+    "Pase Gonza"
+   ],
+   "ok": [
+    1
+   ]
+  },
+  {
+   "text": "Qui agafa rebot?",
+   "ctx": "",
+   "opts": [
+    "Javi",
+    "Turru",
+    "Gonza",
+    "Marti"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "T3 ordo",
+    "Passe Javi",
+    "Sowkin falta rebuda",
+    "Perdua Sowkin"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Quants rebots ens agafen?",
+   "ctx": "",
+   "opts": [
+    "0",
+    "1",
+    "2",
+    "3"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "2p",
+    "3p",
+    "Pèrdua",
+    "Falta"
+   ],
+   "ok": [
+    0,
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada? Defensa spanish...",
+   "ctx": "",
+   "opts": [
+    "Robo",
+    "2p",
+    "3p",
+    "Tir fallat"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Que juguen?",
+   "ctx": "",
+   "opts": [
+    "1 = trans",
+    "2 = stagger",
+    "3 = spanish",
+    "6 = 3p"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Verde als BD",
+    "Canvi BD",
+    "Falta",
+    "2p"
+   ],
+   "ok": [
+    2
+   ]
+  }
+ ],
+ "players": [
+  {
+   "name": "Carraskuñas",
+   "score": 7141,
+   "ans": [
+    {
+     "o": 2,
+     "ms": 18177,
+     "ok": true,
+     "pts": 546
+    },
+    {
+     "o": 3,
+     "ms": 12234,
+     "ok": true,
+     "pts": 794
+    },
+    {
+     "o": 1,
+     "ms": 12888,
+     "ok": true,
+     "pts": 878
+    },
+    {
+     "o": 3,
+     "ms": 14563,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 16892,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 6821,
+     "ok": true,
+     "pts": 829
+    },
+    {
+     "o": 2,
+     "ms": 3440,
+     "ok": true,
+     "pts": 1014
+    },
+    {
+     "o": 2,
+     "ms": 10933,
+     "ok": true,
+     "pts": 927
+    },
+    {
+     "o": 2,
+     "ms": 18974,
+     "ok": true,
+     "pts": 826
+    },
+    {
+     "o": 3,
+     "ms": 2933,
+     "ok": true,
+     "pts": 1327
+    },
+    {
+     "o": 1,
+     "ms": 17832,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 11908,
+     "ok": false,
+     "pts": 0
+    }
+   ]
+  },
+  {
+   "name": "SinPaPa",
+   "score": 6192,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 17330,
+     "ok": false,
+     "pts": 0
+    },
+    null,
+    {
+     "o": 0,
+     "ms": 10414,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 5193,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 2944,
+     "ok": true,
+     "pts": 926
+    },
+    {
+     "o": 3,
+     "ms": 5295,
+     "ok": true,
+     "pts": 968
+    },
+    {
+     "o": 2,
+     "ms": 7004,
+     "ok": true,
+     "pts": 1025
+    },
+    {
+     "o": 2,
+     "ms": 13045,
+     "ok": true,
+     "pts": 974
+    },
+    {
+     "o": 3,
+     "ms": 17712,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 10817,
+     "ok": true,
+     "pts": 730
+    },
+    {
+     "o": 3,
+     "ms": 18183,
+     "ok": true,
+     "pts": 645
+    },
+    {
+     "o": 2,
+     "ms": 11032,
+     "ok": true,
+     "pts": 924
+    }
+   ]
+  },
+  {
+   "name": "Martinazzi6",
+   "score": 5699,
+   "ans": [
+    {
+     "o": 0,
+     "ms": 7440,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 6773,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 6186,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 7436,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 6664,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 3269,
+     "ok": true,
+     "pts": 918
+    },
+    {
+     "o": 2,
+     "ms": 6655,
+     "ok": true,
+     "pts": 934
+    },
+    {
+     "o": 2,
+     "ms": 2773,
+     "ok": true,
+     "pts": 1131
+    },
+    {
+     "o": 1,
+     "ms": 4639,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 9863,
+     "ok": true,
+     "pts": 753
+    },
+    {
+     "o": 3,
+     "ms": 10241,
+     "ok": true,
+     "pts": 844
+    },
+    {
+     "o": 2,
+     "ms": 3254,
+     "ok": true,
+     "pts": 1119
+    }
+   ]
+  },
+  {
+   "name": "Menores",
+   "score": 4555,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 9686,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 16933,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 13123,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 8153,
+     "ok": true,
+     "pts": 796
+    },
+    {
+     "o": 1,
+     "ms": 5711,
+     "ok": true,
+     "pts": 957
+    },
+    null,
+    {
+     "o": 2,
+     "ms": 3854,
+     "ok": true,
+     "pts": 904
+    },
+    {
+     "o": 2,
+     "ms": 4766,
+     "ok": true,
+     "pts": 981
+    },
+    {
+     "o": 2,
+     "ms": 11314,
+     "ok": true,
+     "pts": 917
+    },
+    {
+     "o": 1,
+     "ms": 18733,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 12169,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 8586,
+     "ok": false,
+     "pts": 0
+    }
+   ]
+  },
+  {
+   "name": "Ettore",
+   "score": 3421,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 2811,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 13710,
+     "ok": true,
+     "pts": 657
+    },
+    {
+     "o": 0,
+     "ms": 6312,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 16090,
+     "ok": true,
+     "pts": 598
+    },
+    {
+     "o": 1,
+     "ms": 8365,
+     "ok": true,
+     "pts": 891
+    },
+    {
+     "o": 0,
+     "ms": 6896,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 14429,
+     "ok": true,
+     "pts": 639
+    },
+    {
+     "o": 3,
+     "ms": 3762,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 3066,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 16424,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 5228,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 14544,
+     "ok": true,
+     "pts": 636
+    }
+   ]
+  },
+  {
+   "name": "Hasbulla",
+   "score": 3378,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 5938,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 9893,
+     "ok": true,
+     "pts": 753
+    },
+    {
+     "o": 0,
+     "ms": 8834,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 13516,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 8301,
+     "ok": true,
+     "pts": 792
+    },
+    {
+     "o": 0,
+     "ms": 2965,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 3785,
+     "ok": true,
+     "pts": 905
+    },
+    {
+     "o": 0,
+     "ms": 3305,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 2897,
+     "ok": true,
+     "pts": 928
+    },
+    {
+     "o": 1,
+     "ms": 5898,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 7849,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 10677,
+     "ok": false,
+     "pts": 0
+    }
+   ]
+  },
+  {
+   "name": "Gonza",
+   "score": 3308,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 12317,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 8884,
+     "ok": true,
+     "pts": 778
+    },
+    {
+     "o": 0,
+     "ms": 8591,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 7345,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 4872,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 3224,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 4012,
+     "ok": true,
+     "pts": 900
+    },
+    {
+     "o": 2,
+     "ms": 6695,
+     "ok": true,
+     "pts": 933
+    },
+    {
+     "o": 3,
+     "ms": 19294,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 6635,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 7032,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 12132,
+     "ok": true,
+     "pts": 697
+    }
+   ]
+  },
+  {
+   "name": "Uri",
+   "score": 2705,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 15191,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 5864,
+     "ok": true,
+     "pts": 853
+    },
+    {
+     "o": 0,
+     "ms": 4200,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 4088,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 6308,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 10771,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 4278,
+     "ok": true,
+     "pts": 893
+    },
+    {
+     "o": 2,
+     "ms": 5626,
+     "ok": true,
+     "pts": 959
+    },
+    {
+     "o": 1,
+     "ms": 9799,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 8016,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 14783,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 12152,
+     "ok": false,
+     "pts": 0
+    }
+   ]
+  },
+  {
+   "name": "MUSIKITO I SARETAS",
+   "score": 1988,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 15390,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 16974,
+     "ok": true,
+     "pts": 576
+    },
+    {
+     "o": 0,
+     "ms": 7964,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 17448,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 8509,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 9223,
+     "ok": false,
+     "pts": 0
+    },
+    null,
+    {
+     "o": 0,
+     "ms": 1537,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 16212,
+     "ok": true,
+     "pts": 595
+    },
+    {
+     "o": 3,
+     "ms": 11306,
+     "ok": true,
+     "pts": 817
+    },
+    {
+     "o": 1,
+     "ms": 7563,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 4125,
+     "ok": false,
+     "pts": 0
+    }
+   ]
+  },
+  {
+   "name": "RealFelton",
+   "score": 1695,
+   "ans": [
+    {
+     "o": 1,
+     "ms": 5261,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 19826,
+     "ok": true,
+     "pts": 504
+    },
+    {
+     "o": 0,
+     "ms": 8745,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 3,
+     "ms": 9360,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 9914,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 0,
+     "ms": 8524,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 13346,
+     "ok": true,
+     "pts": 666
+    },
+    {
+     "o": 0,
+     "ms": 18462,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 5060,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 2768,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 1,
+     "ms": 6335,
+     "ok": false,
+     "pts": 0
+    },
+    {
+     "o": 2,
+     "ms": 18990,
+     "ok": true,
+     "pts": 525
+    }
+   ]
+  },
+  {
+   "name": "Shetty",
+   "score": 0,
+   "ans": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ ],
+ "gh": "resultados/2026-10-12_2040_nuevo_cuestionario_H49RC.json"
+}
