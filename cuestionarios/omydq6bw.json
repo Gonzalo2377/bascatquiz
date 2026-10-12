@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828716961,
+ "updated": 1791828729976,
  "qs": [
   {
    "id": "f486bi",
@@ -317,7 +317,7 @@
    "stop": 6.37,
    "to": null,
    "ctx": "",
-   "text": "Com acaba la jugada?",
+   "text": "Com acaba la jugada? Defensa spanish...",
    "opts": [
     {
      "t": "Robo",
@@ -328,7 +328,7 @@
      "ok": false
     },
     {
-     "t": "T3 ",
+     "t": "3p ",
      "ok": false
     },
     {
