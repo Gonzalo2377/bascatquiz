@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791827178828,
+ "updated": 1791827219781,
  "qs": [
   {
    "id": "f486bi",
@@ -238,17 +238,17 @@
     "dur": 20.91
    },
    "from": 0.46,
-   "stop": 18.41,
+   "stop": 14.56,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
    "opts": [
     {
-     "t": "",
+     "t": "T3 ordo",
      "ok": false
     },
     {
-     "t": "",
+     "t": "Passe Javi",
      "ok": false
     },
     {
