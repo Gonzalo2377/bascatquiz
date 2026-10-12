@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826588436,
+ "updated": 1791826611988,
  "qs": [
   {
    "id": "f486bi",
@@ -94,7 +94,7 @@
     "dur": 14.25
    },
    "from": 3.49,
-   "stop": 6.53,
+   "stop": 9.32,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
