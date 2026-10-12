@@ -1,0 +1,54 @@
+{
+ "date": 1790870694672,
+ "title": "Nuevo cuestionario",
+ "code": "2JSNA",
+ "qs": [
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Pedra",
+    "Aigua",
+    "Basquet",
+    "Falta"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "a",
+    "b",
+    "c",
+    "e"
+   ],
+   "ok": [
+    1
+   ]
+  }
+ ],
+ "players": [
+  {
+   "name": "Gonzi",
+   "score": 825,
+   "ans": [
+    {
+     "o": 2,
+     "ms": 6987,
+     "ok": true,
+     "pts": 825
+    },
+    {
+     "o": 3,
+     "ms": 1798,
+     "ok": false,
+     "pts": 0
+    }
+   ]
+  }
+ ],
+ "gh": "resultados/2026-10-01_1804_nuevo_cuestionario_2JSNA.json"
+}
