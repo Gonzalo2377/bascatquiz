@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826512872,
+ "updated": 1791826536087,
  "qs": [
   {
    "id": "f486bi",
@@ -70,11 +70,11 @@
      "ok": false
     },
     {
-     "t": "",
+     "t": "Falta atac Sow",
      "ok": false
     },
     {
-     "t": "",
+     "t": "Martori out",
      "ok": false
     }
    ],
