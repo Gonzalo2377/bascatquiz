@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826422294,
+ "updated": 1791826459372,
  "qs": [
   {
    "id": "f486bi",
@@ -37,6 +37,196 @@
     },
     {
      "t": "Tir Poch",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "s5cjac",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826364/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/nwbkwsjsl2dpf4nqtvml.mp4",
+    "name": "a",
+    "folder": "BD",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 25.41
+   },
+   "from": 0.39,
+   "stop": 22.91,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "3t7ahr",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826391/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/rreqbaktyz0reuvk2mtl.mp4",
+    "name": "aaa",
+    "folder": "BI",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 14
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "swqovh",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826236/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/w8cfwxw3jentwdbzhcbg.mp4",
+    "name": "a",
+    "folder": "CAA",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 17
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "n72eh4",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826308/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/n6hafhgjbvudadyqa9by.mp4",
+    "name": "s",
+    "folder": "CAA",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 18
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "ozwhf2",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826204/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/r0f8i2bcwbltyjdobybx.mp4",
+    "name": "a",
+    "folder": "BD",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 18
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
      "ok": false
     }
    ],
