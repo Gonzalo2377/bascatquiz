@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828595576,
+ "updated": 1791828674315,
  "qs": [
   {
    "id": "f486bi",
@@ -295,6 +295,44 @@
     },
     {
      "t": "Falta",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "veafvq",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791828597/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/umij8ciedqp98647nshy.mp4",
+    "name": "ssss",
+    "folder": "Defensa 5c5",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 8.87
+   },
+   "from": 0,
+   "stop": 6.37,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
      "ok": false
     }
    ],
