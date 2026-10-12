@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828752684,
+ "updated": 1791828778463,
  "qs": [
   {
    "id": "f486bi",
@@ -334,6 +334,120 @@
     {
      "t": "Tir fallat",
      "ok": true
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "25hz5p",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826327/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/uqqdt8freb70an3psvkm.mp4",
+    "name": "a",
+    "folder": "CAA",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 13.22
+   },
+   "from": 0.5,
+   "stop": 10.72,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "mmcf29",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791826262/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/hte7r97kmxf3a3vf7xaj.mp4",
+    "name": "flas",
+    "folder": "BI",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 12
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "eso5i8",
+   "on": true,
+   "clip": {
+    "src": "lib",
+    "url": "https://res.cloudinary.com/yyfhdwlg/video/upload/v1791828674/bascat/U_E__CLARET_A_vs_IBERSOFAS___CLUB_B_SQUET_ARGENTONA/zcxf871spk6b93wbrggk.mp4",
+    "name": "aaaa",
+    "folder": "Zones",
+    "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
+    "dur": 12
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
     }
    ],
    "lim": 20,
