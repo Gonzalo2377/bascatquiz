@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826611988,
+ "updated": 1791826630048,
  "qs": [
   {
    "id": "f486bi",
@@ -100,7 +100,7 @@
    "text": "Com acaba la jugada?",
    "opts": [
     {
-     "t": "",
+     "t": "Ordo",
      "ok": false
     },
     {
