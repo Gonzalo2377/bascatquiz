@@ -1,0 +1,188 @@
+{
+ "date": 1791829020839,
+ "title": "Nuevo cuestionario",
+ "code": "CAGYA",
+ "qs": [
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Pèrdua passe esquena",
+    "T3 hector",
+    "Reject Sitjes",
+    "Tir Poch"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Tir de Sitjes",
+    "Poch T3",
+    "Falta atac Sow",
+    "Martori out"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Qui es queixa més?",
+   "ctx": "",
+   "opts": [
+    "Ordo",
+    "Curva"
+   ],
+   "ok": [
+    1
+   ]
+  },
+  {
+   "text": "Qui pilla el rebot?",
+   "ctx": "",
+   "opts": [
+    "Ordo",
+    "Gonza",
+    "Ori",
+    "Aigua i fora"
+   ],
+   "ok": [
+    0
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Tir Poch",
+    "Perdua",
+    "Roff",
+    "Pase Gonza"
+   ],
+   "ok": [
+    1
+   ]
+  },
+  {
+   "text": "Qui agafa rebot?",
+   "ctx": "",
+   "opts": [
+    "Javi",
+    "Turru",
+    "Gonza",
+    "Marti"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "T3 ordo",
+    "Passe Javi",
+    "Sowkin falta rebuda",
+    "Perdua Sowkin"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Quants rebots ens agafen?",
+   "ctx": "",
+   "opts": [
+    "0",
+    "1",
+    "2",
+    "3"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "2p",
+    "3p",
+    "Pèrdua",
+    "Falta"
+   ],
+   "ok": [
+    0,
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada? Defensa spanish...",
+   "ctx": "",
+   "opts": [
+    "Robo",
+    "2p",
+    "3p",
+    "Tir fallat"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Que juguen?",
+   "ctx": "",
+   "opts": [
+    "1 = trans",
+    "2 = stagger",
+    "3 = spanish",
+    "6 = 3p"
+   ],
+   "ok": [
+    3
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Verde als BD",
+    "Canvi BD",
+    "Falta",
+    "2p"
+   ],
+   "ok": [
+    2
+   ]
+  }
+ ],
+ "players": [
+  {
+   "name": "L",
+   "score": 928,
+   "ans": [
+    {
+     "o": 2,
+     "ms": 2897,
+     "ok": true,
+     "pts": 928
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ]
+  }
+ ],
+ "gh": "resultados/2026-10-12_2017_nuevo_cuestionario_CAGYA.json"
+}
