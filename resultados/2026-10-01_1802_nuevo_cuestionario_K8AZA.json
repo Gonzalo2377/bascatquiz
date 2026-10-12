@@ -1,0 +1,49 @@
+{
+ "date": 1790870579260,
+ "title": "Nuevo cuestionario",
+ "code": "K8AZA",
+ "qs": [
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "Pedra",
+    "Aigua",
+    "Basquet",
+    "Falta"
+   ],
+   "ok": [
+    2
+   ]
+  },
+  {
+   "text": "Com acaba la jugada?",
+   "ctx": "",
+   "opts": [
+    "a",
+    "b",
+    "c",
+    "e"
+   ],
+   "ok": [
+    1
+   ]
+  }
+ ],
+ "players": [
+  {
+   "name": "Gonzi",
+   "score": 935,
+   "ans": [
+    {
+     "o": 2,
+     "ms": 2619,
+     "ok": true,
+     "pts": 935
+    },
+    null
+   ]
+  }
+ ],
+ "gh": "resultados/2026-10-01_1802_nuevo_cuestionario_K8AZA.json"
+}
