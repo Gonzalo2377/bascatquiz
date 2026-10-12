@@ -1,0 +1,41 @@
+{
+ "v": 1,
+ "id": "omydq6bw",
+ "title": "Nuevo cuestionario",
+ "lang": "ca",
+ "created": 1790871006124,
+ "updated": 1791825764176,
+ "qs": [
+  {
+   "id": "yhvbr6",
+   "on": true,
+   "clip": null,
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  }
+ ]
+}
