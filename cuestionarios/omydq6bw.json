@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828904493,
+ "updated": 1791828929107,
  "qs": [
   {
    "id": "f486bi",
@@ -396,16 +396,16 @@
    "text": "Com acaba la jugada?",
    "opts": [
     {
-     "t": "",
+     "t": "Verde als BD",
      "ok": false
     },
     {
-     "t": "",
+     "t": "Canvi BD",
      "ok": false
     },
     {
-     "t": "",
-     "ok": false
+     "t": "Falta ",
+     "ok": true
     },
     {
      "t": "",
