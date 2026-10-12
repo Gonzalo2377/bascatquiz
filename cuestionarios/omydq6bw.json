@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791826715234,
+ "updated": 1791826773444,
  "qs": [
   {
    "id": "f486bi",
@@ -162,13 +162,13 @@
     "dur": 18.48
    },
    "from": 0,
-   "stop": 15.98,
+   "stop": 13.15,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
    "opts": [
     {
-     "t": "",
+     "t": "Tir Poch",
      "ok": false
     },
     {
