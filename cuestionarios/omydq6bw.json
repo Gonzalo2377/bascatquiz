@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791828833780,
+ "updated": 1791828851945,
  "qs": [
   {
    "id": "f486bi",
@@ -358,15 +358,15 @@
    "text": "Com acaba la jugada?",
    "opts": [
     {
-     "t": "",
+     "t": "3p",
+     "ok": true
+    },
+    {
+     "t": "Perdua argentona",
      "ok": false
     },
     {
-     "t": "",
-     "ok": false
-    },
-    {
-     "t": "",
+     "t": "Tir fallat",
      "ok": false
     },
     {
