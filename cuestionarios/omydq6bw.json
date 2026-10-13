@@ -4,7 +4,7 @@
  "title": "12 Octubre Post Win Argentona",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791879295518,
+ "updated": 1791879303534,
  "qs": [
   {
    "id": "f486bi",
@@ -47,15 +47,6 @@
    "img": null
   },
   {
-   "id": "tr8u5v",
-   "on": true,
-   "kind": "slide",
-   "title": "",
-   "body": "",
-   "img": null,
-   "lay": "split"
-  },
-  {
    "id": "s5cjac",
    "on": true,
    "clip": {
@@ -64,7 +55,7 @@
     "name": "a",
     "folder": "BD",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 25.41
+    "dur": 25.33
    },
    "from": 0.39,
    "stop": 12,
