@@ -4,7 +4,7 @@
  "title": "12 Octubre Post Win Argentona",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791879289221,
+ "updated": 1791879295518,
  "qs": [
   {
    "id": "f486bi",
@@ -45,6 +45,15 @@
    "expl": "",
    "media": "clip",
    "img": null
+  },
+  {
+   "id": "tr8u5v",
+   "on": true,
+   "kind": "slide",
+   "title": "",
+   "body": "",
+   "img": null,
+   "lay": "split"
   },
   {
    "id": "s5cjac",
