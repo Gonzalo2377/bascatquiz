@@ -48,13 +48,13 @@
   };
 
   // ── ajustes ──
-  // La web de BascatApp ya usa este proyecto de Supabase (clave pública); aquí solo se usa su canal en directo
+  // La web de BasketApp ya usa este proyecto de Supabase (clave pública); aquí solo se usa su canal en directo
   // y, para el staff, la lista de clips de la biblioteca.
   const DEF = { sbUrl: 'https://amjxnjxjtakgsfpisnbq.supabase.co', sbKey: 'sb_publishable_zDk6pygUKObV7uRHWYCGxw_FpAqfR6B', pubUrl: '', sound: true, net: 'supa' };
   BQ.cfg = () => Object.assign({}, DEF, BQ.store.get('cfg', {}));
   BQ.setCfg = patch => { const c = Object.assign(BQ.store.get('cfg', {}), patch); BQ.store.set('cfg', c); BQ._sb = null; };
   // dirección que se pone en el QR para los móviles
-  BQ.HOME = 'https://gonzalo2377.github.io/bascatquiz/'; // donde vive la página publicada (repositorio propio, aparte de BascatApp)
+  BQ.HOME = 'https://gonzalo2377.github.io/bascatquiz/'; // donde vive la página publicada (repositorio propio, aparte de BasketApp)
   BQ.joinBase = (net) => {
     const c = BQ.cfg();
     if (net === 'local') return location.href.replace(/#.*$/, ''); // ensayo: pestañas de este mismo navegador
@@ -108,23 +108,62 @@
     '<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="5" width="22" height="22" rx="2"/></svg>',
   ];
   BQ.LETTERS = ['A', 'B', 'C', 'D'];
-  BQ.newQuestion = (lang, clip) => ({
-    id: BQ.uid(6), on: true, clip: clip || null, from: 0, stop: null, to: null,
-    ctx: '', text: lang === 'es' ? '¿Cómo acaba la jugada?' : 'Com acaba la jugada?',
+  // Pregunta: con clip (media 'clip'), con imagen ('img') o solo con texto ('none')
+  BQ.newQuestion = (lang, clip, media) => ({
+    id: BQ.uid(6), on: true, media: media || 'clip', img: null, clip: clip || null, from: 0, stop: null, to: null,
+    ctx: '', text: media && media !== 'clip' ? '' : (lang === 'es' ? '¿Cómo acaba la jugada?' : 'Com acaba la jugada?'),
     opts: [{ t: '', ok: false }, { t: '', ok: false }, { t: '', ok: false }, { t: '', ok: false }],
     lim: 20, pts: 1, expl: '',
   });
+  // Diapositiva: título, texto (líneas con «-» = puntos) e imagen opcional; no tiene respuestas ni puntos
+  BQ.newSlide = () => ({ id: BQ.uid(6), on: true, kind: 'slide', title: '', body: '', img: null, lay: 'split' });
+  BQ.isSlide = q => !!q && q.kind === 'slide';
+  BQ.media = q => (q && q.media) || 'clip';
   BQ.newQuiz = (title, lang) => ({ v: 1, id: BQ.uid(8), title: title || 'Nuevo cuestionario', lang: lang || 'ca', created: Date.now(), updated: Date.now(), qs: [] });
   // opciones que se juegan (las vacías no cuentan)
-  BQ.liveOpts = q => q.opts.map((o, i) => ({ t: (o.t || '').trim(), ok: !!o.ok, i })).filter(o => o.t);
+  BQ.liveOpts = q => (q.opts || []).map((o, i) => ({ t: (o.t || '').trim(), ok: !!o.ok, i })).filter(o => o.t);
   BQ.problems = (q, clipOk) => {
-    const p = [], o = BQ.liveOpts(q);
-    if (!q.clip) p.push('sin clip'); else if (clipOk === false) p.push('falta el vídeo');
+    const p = [];
+    if (BQ.isSlide(q)) { if (!(q.title || '').trim() && !(q.body || '').trim() && !q.img) p.push('diapositiva vacía'); return p; }
+    const o = BQ.liveOpts(q), m = BQ.media(q);
+    if (m === 'clip') { if (!q.clip) p.push('sin clip'); else if (clipOk === false) p.push('falta el vídeo'); }
+    else if (m === 'img' && !q.img) p.push('sin imagen');
     if (!(q.text || '').trim()) p.push('sin pregunta');
     if (o.length < 2) p.push('menos de 2 respuestas');
     else if (!o.some(x => x.ok)) p.push('ninguna correcta');
-    if (q.stop == null) p.push('sin parada');
+    if (m === 'clip' && q.stop == null) p.push('sin parada');
     return p;
+  };
+
+  // ── imágenes (diapositivas y preguntas con imagen): se reducen para que el cuestionario no pese ──
+  BQ.isImage = n => /\.(png|jpe?g|webp|gif|bmp|avif)$/i.test(n || '');
+  BQ.readImage = (file, max = 1600) => new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, max / Math.max(im.naturalWidth, im.naturalHeight)), w = Math.max(1, Math.round(im.naturalWidth * k)), h = Math.max(1, Math.round(im.naturalHeight * k));
+      const c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+      x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h); URL.revokeObjectURL(url);
+      let src = c.toDataURL('image/webp', 0.84); if (!/^data:image\/webp/.test(src)) src = c.toDataURL('image/jpeg', 0.84);
+      res({ src, w, h });
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error('No es una imagen que se pueda abrir')); };
+    im.src = url;
+  });
+  // texto de diapositiva → HTML: líneas con «-», «•» o «*» son puntos; **así** va en negrita
+  BQ.richText = s => {
+    const inl = t => BQ.esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+    const out = []; let ul = null;
+    String(s || '').split(/\r?\n/).forEach(l => {
+      const m = l.match(/^\s*[-•*]\s+(.*)$/);
+      if (m) { if (!ul) { ul = []; out.push(ul); } ul.push(`<li>${inl(m[1])}</li>`); }
+      else { ul = null; if (l.trim()) out.push(`<p>${inl(l)}</p>`); }
+    });
+    return out.map(x => Array.isArray(x) ? `<ul>${x.join('')}</ul>` : x).join('');
+  };
+  // diapositiva tal como se ve en la pantalla grande (también la vista previa del editor)
+  BQ.slideHtml = s => {
+    const hasT = (s.title || '').trim() || (s.body || '').trim(), lay = !s.img ? 'text' : !hasT ? 'img' : (s.lay === 'big' ? 'big' : 'split');
+    return `<div class="slide lay-${lay}">${s.img ? `<div class="simg"><img src="${s.img.src}" alt=""></div>` : ''}${hasT ? `<div class="stx">${(s.title || '').trim() ? `<h2>${BQ.esc(s.title)}</h2>` : ''}${BQ.richText(s.body)}</div>` : ''}</div>`;
   };
 
   // Puntos: hasta 1000 por acertar, menos cuanto más se tarda (la mitad si se apura el tiempo), ×2 en preguntas dobles.
@@ -152,10 +191,10 @@
     let n = 0; for (const r of all) { if (!BQ.files.has(r.key) && r.blob) { BQ.addFile(r.key, new File([r.blob], r.key.split('/').pop(), { type: r.type || 'video/mp4' })); n++; } }
     return n;
   };
-  // Biblioteca de BascatApp: clips subidos a la nube (Cloudinary), organizados por partido → equipo → ataque/defensa → carpeta
+  // Biblioteca de BasketApp: clips subidos a la nube (Cloudinary), organizados por partido → equipo → ataque/defensa → carpeta
   BQ.lib = { rows: null, clips: [] };
   BQ.loadLib = async () => {
-    const sb = BQ.sb(); if (!sb) throw new Error('Sin conexión con la base de datos de BascatApp');
+    const sb = BQ.sb(); if (!sb) throw new Error('Sin conexión con la base de datos de BasketApp');
     const { data, error } = await sb.from('matches').select('id,nm:match_data->>name,home:match_data->>homeTeam,away:match_data->>awayTeam,vc:match_data->videoClips').not('match_data->videoClips', 'is', null);
     if (error) throw new Error(error.message || 'No se ha podido leer la biblioteca');
     const rows = [], clips = [];

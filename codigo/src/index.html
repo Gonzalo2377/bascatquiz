@@ -307,6 +307,42 @@ h1, h2, h3 { margin: 0; font-family: var(--f); font-weight: 700; text-wrap: bala
 .pl .conn.ok::before { background: #4cc27c } .pl .conn.err::before { background: #ef5350 }
 .spin { width: 36px; height: 36px; border: 4px solid var(--stage-3); border-top-color: var(--gold); border-radius: 50%; animation: spin 1s linear infinite }
 @keyframes spin { to { transform: rotate(360deg) } }
+
+/* ── diapositivas y preguntas sin clip ── */
+.qi.sl .n { background: var(--soft); color: var(--gold, #b88a10); font-size: 14px }
+.qi.sl.cur .n { background: #2b2023; color: var(--gold); border-color: #2b2023 }
+.seg3 { display: flex; gap: 4px; padding: 3px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line); margin-bottom: 12px }
+.seg3 button { flex: 1; border: 0; background: transparent; border-radius: 7px; padding: 7px 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--muted); white-space: nowrap }
+.seg3 button:hover { color: var(--ink) }
+.seg3 button.on { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12) }
+.vbox.imgbox { background: var(--stage-2) }
+.vbox.imgbox img { width: 100%; height: 100%; object-fit: contain; display: block }
+.vbox.imgbox.over, .sprev.over { outline: 3px dashed var(--accent); outline-offset: -6px }
+.vbox.txtbox { background: var(--stage); display: grid; place-items: center; padding: 6%; container-type: inline-size }
+.vbox.txtbox .txq { color: var(--stage-ink); font: 800 5.2cqw/1.15 var(--f); text-align: center; text-wrap: balance }
+.sprev { position: relative; aspect-ratio: 16 / 9; background: var(--stage); border-radius: 12px; overflow: hidden; padding: 4.5%; container-type: size }
+/* la diapositiva (vista previa y pantalla grande): el tamaño del texto va con el del recuadro */
+.slide { width: 100%; height: 100%; display: grid; gap: 4%; align-items: center; color: var(--stage-ink); font-family: var(--f); min-height: 0 }
+.slide.lay-split { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) }
+.slide.lay-big { grid-template-rows: minmax(0, 1fr) auto; gap: 3% }
+.slide.lay-img, .slide.lay-text { grid-template-columns: minmax(0, 1fr) }
+.slide .simg { height: 100%; min-height: 0; display: grid; place-items: center }
+.slide .simg img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 1.4cqmin; box-shadow: 0 1.2cqmin 4cqmin rgba(0,0,0,.4) }
+.slide .stx { min-width: 0; overflow: hidden }
+.slide .stx h2 { font-size: 5.6cqmin; font-weight: 800; line-height: 1.12; margin: 0 0 2.2cqmin; padding-bottom: 1.6cqmin; border-bottom: .5cqmin solid var(--gold) }
+.slide .stx p { margin: 0 0 1.4cqmin; font: 500 3.4cqmin/1.35 var(--f); color: var(--stage-ink) }
+.slide .stx ul { margin: 0 0 1.4cqmin; padding: 0; list-style: none }
+.slide .stx li { font: 500 3.4cqmin/1.35 var(--f); margin-bottom: .9cqmin; position: relative; padding-left: 1.15em }
+.slide .stx li::before { content: ''; position: absolute; left: .1em; top: .5em; width: .45em; height: .45em; border-radius: 50%; background: var(--gold) }
+.slide .stx b { color: var(--gold); font-weight: 800 }
+.slide.lay-text { justify-items: center } .slide.lay-text .stx { max-width: 88%; width: 100% }
+.slide.lay-text .stx h2 { font-size: 7.4cqmin } .slide.lay-text .stx p, .slide.lay-text .stx li { font-size: 4.4cqmin }
+.slide.lay-big .stx { text-align: center } .slide.lay-big .stx h2 { border: 0; margin-bottom: .8cqmin; padding: 0 } .slide.lay-big .stx ul { display: inline-block; text-align: left }
+.panel .slidewrap { width: 100%; height: 100%; max-width: 1800px; container-type: size; animation: slin .45s cubic-bezier(.05,.7,.1,1) }
+@keyframes slin { from { opacity: 0; transform: translateY(14px) scale(.985) } }
+.vwrap .limg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 14px; background: var(--stage-2) }
+.vwrap .vmsg.bigq { color: var(--stage-ink); font: 800 clamp(26px, 4.2vw, 72px)/1.15 var(--f); text-wrap: balance; padding: 4% 6% }
+.pl .pslx { white-space: pre-line; max-width: 540px; text-align: left; line-height: 1.4 }
 </style>
 <script>/*@@LIBS@@*/</script>
 </head>

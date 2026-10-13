@@ -80,8 +80,12 @@
       screen('lobby' + (me ? 1 : 0), `<div class="center"><h1>${esc(me ? T('in') : T('connecting'))}</h1><div class="big-sh bgB">${BQ.SHAPES[1]}</div><div class="sub">${esc(T('look'))}</div><div class="sub" style="font-size:14px">${esc(T('soon'))}</div><button class="pbtn ghost" id="pRen">${esc(T('otherName'))}</button></div>`, () => { $('#pRen').onclick = () => joinForm(); });
       return;
     }
+    if (d.ph === 'slide' && d.sl) {
+      screen('slide' + d.sl.id, `<div class="center"><div class="pctx">${esc(T('slide'))}</div>${d.sl.t ? `<h1>${esc(d.sl.t)}</h1>` : ''}${d.sl.x ? `<div class="sub pslx">${esc(d.sl.x)}</div>` : ''}<div class="sub" style="font-size:14px">${esc(T('look'))}</div></div>`);
+      return;
+    }
     if (d.ph === 'play') {
-      screen('play' + q.id, `${head(d)}<div class="center">${q.c ? `<div class="pctx">${esc(q.c)}</div>` : ''}<div class="pq">${esc(q.x)}</div><div class="sub">${esc(T('watch'))}</div><div class="spin"></div></div>`);
+      screen('play' + q.id, `${head(d)}<div class="center">${q.c ? `<div class="pctx">${esc(q.c)}</div>` : ''}<div class="pq">${esc(q.x)}</div><div class="sub">${esc(q.md && q.md !== 'clip' ? T('readQ') : T('watch'))}</div><div class="spin"></div></div>`);
       return;
     }
     if (d.ph === 'q' && !mine[q.id]) {

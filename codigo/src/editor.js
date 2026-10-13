@@ -1,4 +1,4 @@
-/* BascatQuiz · Preparar: cuestionarios, preguntas, clips (biblioteca de BascatApp u ordenador), dónde para cada clip y las respuestas */
+/* BascatQuiz · Preparar: cuestionarios, preguntas, clips (biblioteca de BasketApp u ordenador), dónde para cada clip y las respuestas */
 (function () {
   'use strict';
   const BQ = window.BQ, { $, $$, esc } = BQ;
@@ -34,13 +34,18 @@
   function fixQuiz(q) {
     q.v = 1; q.id = q.id || BQ.uid(8); q.lang = q.lang === 'es' ? 'es' : 'ca'; q.title = q.title || 'Cuestionario'; q.qs = Array.isArray(q.qs) ? q.qs : [];
     for (const x of q.qs) {
-      x.id = x.id || BQ.uid(6); x.on = x.on !== false; x.opts = Array.isArray(x.opts) ? x.opts.slice(0, 4).map(o => ({ t: String(o.t || ''), ok: !!o.ok })) : [];
+      x.id = x.id || BQ.uid(6); x.on = x.on !== false;
+      if (x.kind === 'slide') { x.title = String(x.title || ''); x.body = String(x.body || ''); x.img = x.img && x.img.src ? x.img : null; x.lay = x.lay === 'big' ? 'big' : 'split'; continue; }
+      x.media = ['clip', 'img', 'none'].includes(x.media) ? x.media : 'clip'; x.img = x.img && x.img.src ? x.img : null;
+      x.opts = Array.isArray(x.opts) ? x.opts.slice(0, 4).map(o => ({ t: String(o.t || ''), ok: !!o.ok })) : [];
       while (x.opts.length < 2) x.opts.push({ t: '', ok: false });
       x.lim = +x.lim || 20; x.pts = [0, 1, 2].includes(+x.pts) ? +x.pts : 1; x.from = +x.from || 0; x.stop = x.stop == null ? null : +x.stop; x.to = x.to == null ? null : +x.to;
       x.text = x.text || ''; x.ctx = x.ctx || ''; x.expl = x.expl || '';
     }
     return q;
   }
+  // solo las preguntas «con clip» necesitan vídeo (las diapositivas y las de imagen o texto, no)
+  const usesClip = x => !BQ.isSlide(x) && BQ.media(x) === 'clip' && !!x.clip;
   function newQuiz(title) { dropEmpty(); E.quiz = BQ.newQuiz(title, E.quiz ? L() : 'ca'); E.quiz.author = BQ.gh.me(); E.sel = null; save(true); renderAll(); }
   function importQuiz(text, name) {
     let q; try { q = JSON.parse(text); } catch (e) { BQ.toast('Ese archivo no es un cuestionario válido'); return; }
@@ -48,8 +53,8 @@
     q = fixQuiz(q);
     if (BQ.store.get('quiz.' + q.id, null)) q.id = BQ.uid(8); // no pisar uno que ya existe
     dropEmpty(q.id); E.quiz = q; E.sel = (q.qs[0] || {}).id || null; save(true); renderAll();
-    const miss = q.qs.filter(x => x.clip && !BQ.resolveClip(x.clip)).length;
-    BQ.toast(`«${q.title}» importado: ${q.qs.length} preguntas` + (miss ? ` · faltan ${miss} vídeos (cárgalos desde la biblioteca o el ordenador)` : ''), 6000);
+    const miss = q.qs.filter(x => usesClip(x) && !BQ.resolveClip(x.clip)).length;
+    BQ.toast(`«${q.title}» importado: ${q.qs.length} elementos` +(miss ? ` · faltan ${miss} vídeos (cárgalos desde la biblioteca o el ordenador)` : ''), 6000);
     if (miss && !BQ.lib.rows) tryLibQuiet();
   }
   function exportQuiz() {
@@ -68,7 +73,7 @@
   // sube los vídeos del ordenador que use el cuestionario (una sola vez cada vídeo) y apunta dónde quedan
   async function uploadVideos(q) {
     const vids = BQ.store.get('ghvid', {}); let changed = false;
-    const todo = q.qs.filter(x => x.clip && x.clip.src !== 'lib' && !x.clip.gh);
+    const todo = q.qs.filter(x => usesClip(x) && x.clip.src !== 'lib' && !x.clip.gh);
     let n = 0;
     for (const x of todo) {
       const r = BQ.resolveClip(x.clip); if (!r || r.how !== 'file') continue;
@@ -164,7 +169,7 @@
   async function fetchVideos() {
     if (fetching || !BQ.gh.ok() || !E.quiz) return; fetching = true;
     try {
-      const need = E.quiz.qs.filter(x => x.clip && x.clip.gh && !BQ.resolveClip(x.clip)); const paths = [...new Set(need.map(x => x.clip.gh))];
+      const need = E.quiz.qs.filter(x => usesClip(x) && x.clip.gh && !BQ.resolveClip(x.clip)); const paths = [...new Set(need.map(x => x.clip.gh))];
       let i = 0;
       for (const path of paths) {
         BQ.toast(`Bajando vídeos de GitHub (${++i}/${paths.length})…`, 60000);
@@ -203,7 +208,7 @@
   }
   function ghWindow(intro, share) {
     const c = BQ.gh.cfg(), st = BQ.gh.state, conn = BQ.gh.configured();
-    const local = E.quiz.qs.filter(x => x.clip && x.clip.src !== 'lib' && !x.clip.gh).length;
+    const local = E.quiz.qs.filter(x => usesClip(x) && x.clip.src !== 'lib' && !x.clip.gh).length;
     const m = BQ.modal(intro ? 'Bienvenido al staff' : 'Guardar en GitHub', `
       ${intro ? '<p class="okmsg" style="margin:0 0 10px">Ya estás conectado a los cuestionarios del staff. Escribe tu nombre y pulsa Guardar cambios.</p>' : ''}
       <p style="margin:0 0 10px">Los cuestionarios se guardan siempre en este navegador. Conectando GitHub, además se guarda una copia de <b>los cuestionarios, los resultados y los vídeos que cargues desde el ordenador</b> en el mismo repositorio del quiz (rama «datos»), y al abrir la página en otro ordenador con el token aparece todo.</p>
@@ -270,16 +275,21 @@
     <div class="hd"><h2>Preguntas</h2><span class="muted num" id="qCount"></span></div>
     <ol class="qlist" id="qList"></ol>
     <div class="row">
-      <div class="menu" id="mAdd"><button class="btn pri" aria-haspopup="true">＋ Añadir clips ▾</button><div class="pop">
-        <button id="aLib">De la biblioteca de BascatApp…</button>
-        <hr><div class="cap">Del ordenador</div>
-        <label>Vídeos…<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" multiple id="fVids"></label>
+      <div class="menu" id="mAdd"><button class="btn pri" aria-haspopup="true">＋ Añadir ▾</button><div class="pop">
+        <div class="cap">Clips (una pregunta por clip)</div>
+        <button id="aLib">De la biblioteca de BasketApp…</button>
+        <label>Vídeos del ordenador…<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" multiple id="fVids"></label>
         <label>Una carpeta…<input type="file" webkitdirectory multiple id="fDir"></label>
         <label>Un zip…<input type="file" accept=".zip" id="fZip"></label>
+        <hr><div class="cap">Sin clip</div>
+        <button id="aSlide2">🖼 Diapositiva (texto e imagen)</button>
+        <label>❓ Pregunta con imagen…<input type="file" accept="image/*" id="fQImg"></label>
+        <button id="aText">❓ Pregunta de solo texto</button>
       </div></div>
       <button class="btn" id="aBlank" title="Pregunta nueva con el mismo clip que la elegida">＋ Pregunta</button>
+      <button class="btn" id="aSlide" title="Diapositiva con título, texto e imagen (no puntúa)">＋ Diapositiva</button>
     </div>
-    <p class="hint">Cada clip es una pregunta. También puedes arrastrar aquí vídeos, una carpeta, un zip o un cuestionario (.json).</p>
+    <p class="hint">Cada clip es una pregunta. Entre pregunta y pregunta puedes poner diapositivas con texto e imágenes. También puedes arrastrar aquí vídeos, imágenes, una carpeta, un zip o un cuestionario (.json).</p>
   </aside>
   <main class="mainp" id="main"></main>
 </div>`;
@@ -294,7 +304,11 @@
     $('#bHelp').onclick = () => help();
     $('#bGh').onclick = () => ghWindow(); BQ.gh.on(ghChip); ghChip();
     $('#aLib').onclick = () => { closeMenus(); libPicker('add'); };
-    $('#aBlank').onclick = () => { const cur = curQ(); const q = BQ.newQuestion(L(), cur && cur.clip ? BQ.clone(cur.clip) : null); if (cur) { q.from = cur.from; q.to = cur.to; q.stop = cur.stop; } insertAfter(q); };
+    $('#aBlank').onclick = () => { const cur = curQ(), base = cur && !BQ.isSlide(cur) ? cur : null; const q = BQ.newQuestion(L(), base && base.clip ? BQ.clone(base.clip) : null, base ? BQ.media(base) : 'clip'); if (base) { q.from = base.from; q.to = base.to; q.stop = base.stop; if (base.img) q.img = base.img; } insertAfter(q); };
+    $('#aSlide').onclick = $('#aSlide2').onclick = () => { closeMenus(); insertAfter(BQ.newSlide()); setTimeout(() => { const t = $('#sTitle'); if (t) t.focus(); }, 30); };
+    $('#aText').onclick = () => { closeMenus(); insertAfter(BQ.newQuestion(L(), null, 'none')); setTimeout(() => { const t = $('#fText'); if (t) t.focus(); }, 30); };
+    $('#fQImg').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; closeMenus(); if (!f) return; const q = BQ.newQuestion(L(), null, 'img'); try { q.img = await BQ.readImage(f); } catch (err) { BQ.toast(err.message); return; } insertAfter(q); };
+    document.addEventListener('paste', onPaste);
     $('#fVids').onchange = e => { addFiles([...e.target.files].map(f => ({ path: f.name, file: f }))); e.target.value = ''; closeMenus(); };
     $('#fDir').onchange = e => { addFiles([...e.target.files].map(f => ({ path: f.webkitRelativePath || f.name, file: f }))); e.target.value = ''; closeMenus(); };
     $('#fZip').onchange = e => { const f = e.target.files[0]; e.target.value = ''; closeMenus(); if (f) openZip(f); };
@@ -339,13 +353,13 @@
   // ───────── lista de preguntas ─────────
   function clipLabel(c) { return c ? c.name || 'clip' : 'sin clip'; }
   function renderList() {
-    const qs = E.quiz.qs, on = qs.filter(q => q.on).length;
-    $('#qCount').textContent = qs.length ? (on === qs.length ? `${qs.length}` : `${on} de ${qs.length} activas`) : '';
+    const qs = E.quiz.qs, on = qs.filter(q => q.on).length, nS = qs.filter(BQ.isSlide).length;
+    $('#qCount').textContent = qs.length ? (on === qs.length ? `${qs.length - nS}${nS ? ` + ${nS} diap.` : ''}` : `${on} de ${qs.length} activas`) : '';
     let n = 0;
     $('#qList').innerHTML = qs.map(q => {
-      const pr = BQ.problems(q, q.clip ? !!BQ.resolveClip(q.clip) : null), num = q.on ? ++n : '–';
-      return `<li class="qi ${q.id === E.sel ? 'cur' : ''} ${q.on ? '' : 'off'}" data-id="${q.id}" draggable="true">
-        <span class="n">${num}</span>
+      const sl = BQ.isSlide(q), pr = BQ.problems(q, usesClip(q) ? !!BQ.resolveClip(q.clip) : null), num = sl ? '▤' : q.on ? ++n : '–';
+      return `<li class="qi ${sl ? 'sl' : ''} ${q.id === E.sel ? 'cur' : ''} ${q.on ? '' : 'off'}" data-id="${q.id}" draggable="true">
+        <span class="n" ${sl ? 'title="Diapositiva"' : ''}>${num}</span>
         <div class="tx">${itemText(q, pr)}</div>
         <div class="acts">
           <button data-a="on" title="${q.on ? 'Quitar de la partida (se guarda)' : 'Volver a incluir en la partida'}">${q.on ? '◉' : '○'}</button>
@@ -373,7 +387,7 @@
     else if (a === 'dn' && i < qs.length - 1) { qs.splice(i, 1); qs.splice(i + 1, 0, q); }
     else if (a === 'dup') { const c = BQ.clone(q); c.id = BQ.uid(6); qs.splice(i + 1, 0, c); save(); select(c.id); return; }
     else if (a === 'del') {
-      if (!await BQ.ask('Borrar pregunta', `¿Borrar «${q.text || 'pregunta'}» (${clipLabel(q.clip)})?`, 'Borrar', true)) return;
+      if (!await BQ.ask(BQ.isSlide(q) ? 'Borrar diapositiva' : 'Borrar pregunta', BQ.isSlide(q) ? `¿Borrar la diapositiva «${q.title || 'sin título'}»?` : `¿Borrar «${q.text || 'pregunta'}»${usesClip(q) ? ` (${clipLabel(q.clip)})` : ''}?`, 'Borrar', true)) return;
       qs.splice(i, 1); if (E.sel === id) E.sel = (qs[i] || qs[i - 1] || {}).id || null; save(); renderList(); renderMain(); return;
     }
     save(); renderList();
@@ -414,15 +428,23 @@
     const files = [...e.dataTransfer.files];
     const json = files.find(f => /\.json$/i.test(f.name)); if (json) { importQuiz(await json.text(), json.name); return; }
     const zip = files.find(f => /\.zip$/i.test(f.name)); if (zip) { openZip(zip); return; }
+    // imágenes sueltas: a la diapositiva / pregunta con imagen elegida, o una diapositiva nueva por imagen
+    const imgs = files.filter(f => BQ.isImage(f.name) || /^image\//.test(f.type));
+    if (imgs.length && !files.some(f => BQ.isVideo(f.name))) {
+      const q = curQ();
+      if (imgs.length === 1 && q && (BQ.isSlide(q) || BQ.media(q) === 'img')) { setImage(q, imgs[0]); return; }
+      for (const f of imgs) { const s = BQ.newSlide(); insertAfter(s); await setImage(s, f); }
+      BQ.toast(imgs.length === 1 ? 'Diapositiva nueva con la imagen' : `${imgs.length} diapositivas nuevas, una por imagen`); return;
+    }
     const ents = [...e.dataTransfer.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean), out = [];
     if (ents.length) { for (const ent of ents) await readEntry(ent, '', out); } else files.forEach(f => out.push({ path: f.name, file: f }));
     addFiles(out);
   }
 
-  // ───────── biblioteca de BascatApp ─────────
+  // ───────── biblioteca de BasketApp ─────────
   async function tryLibQuiet() { try { await BQ.loadLib(); renderList(); renderMain(); } catch (e) { /* sin biblioteca: se queda con los vídeos del ordenador */ } }
   async function libPicker(mode) {
-    const m = BQ.modal(mode === 'pick' ? 'Elegir clip de la biblioteca' : 'Clips de la biblioteca de BascatApp', `<div class="libt" id="libT"><div class="row"><div class="spin" style="border-color:var(--line);border-top-color:var(--accent)"></div> Cargando la biblioteca…</div></div>`,
+    const m = BQ.modal(mode === 'pick' ? 'Elegir clip de la biblioteca' : 'Clips de la biblioteca de BasketApp', `<div class="libt" id="libT"><div class="row"><div class="spin" style="border-color:var(--line);border-top-color:var(--accent)"></div> Cargando la biblioteca…</div></div>`,
       mode === 'pick' ? '' : `<span class="muted grow" id="libN">Ninguno elegido</span><button class="btn" data-x2>Cancelar</button><button class="btn pri" id="libAdd" disabled>Añadir</button>`, { wide: true });
     if (mode !== 'pick') m.querySelector('[data-x2]').onclick = () => m.close();
     let rows;
@@ -451,19 +473,21 @@
   function renderMain() {
     const main = $('#main'); stopPreview();
     if (!E.quiz.qs.length) {
-      main.innerHTML = `<div class="empty drop"><h2>Empieza añadiendo clips</h2><p>Cada clip será una pregunta: decides dónde se para, qué se pregunta y cuáles son las respuestas. Los jugadores contestan desde el móvil.</p>
-        <div class="row"><button class="btn pri" id="eLib">De la biblioteca de BascatApp</button><label class="btn">Vídeos del ordenador<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" multiple id="eVids"></label><label class="btn">Importar cuestionario (.json)<input type="file" accept=".json" id="eImp"></label></div></div>`;
+      main.innerHTML = `<div class="empty drop"><h2>Empieza añadiendo clips o una diapositiva</h2><p>Cada clip será una pregunta: decides dónde se para, qué se pregunta y cuáles son las respuestas. Entre preguntas puedes poner diapositivas con texto e imágenes. Los jugadores contestan desde el móvil.</p>
+        <div class="row"><button class="btn pri" id="eLib">De la biblioteca de BasketApp</button><label class="btn">Vídeos del ordenador<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" multiple id="eVids"></label><button class="btn" id="eSlide">🖼 Diapositiva</button><label class="btn">Importar cuestionario (.json)<input type="file" accept=".json" id="eImp"></label></div></div>`;
       $('#eLib').onclick = () => libPicker('add');
+      $('#eSlide').onclick = () => { insertAfter(BQ.newSlide()); setTimeout(() => { const t = $('#sTitle'); if (t) t.focus(); }, 30); };
       $('#eVids').onchange = e => { addFiles([...e.target.files].map(f => ({ path: f.name, file: f }))); e.target.value = ''; };
       $('#eImp').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; if (f) importQuiz(await f.text(), f.name); };
       E.v = null; return;
     }
     let q = curQ(); if (!q) { E.sel = E.quiz.qs[0].id; q = E.quiz.qs[0]; renderList(); }
-    const lang = L(), src = BQ.resolveClip(q.clip), nOpts = q.opts.length;
+    if (BQ.isSlide(q)) { E.v = null; tl = null; renderSlide(q); return; }
+    const media = BQ.media(q), lang = L(), src = media === 'clip' ? BQ.resolveClip(q.clip) : null, nOpts = q.opts.length;
     const presetsQ = lang === 'es' ? ['¿Cómo acaba la jugada?', '¿Qué debería hacer el defensor?', '¿Quién comete el error?', '¿Cómo defendemos este bloqueo?', '¿Cuál es el mejor pase?'] : ['Com acaba la jugada?', 'Què hauria de fer el defensor?', 'Qui comet l’error?', 'Com defensem aquest bloqueig?', 'Quina és la millor passada?'];
     const presetsO = lang === 'es' ? ['Triple', 'Canasta de 2', 'Falta y tiros libres', 'Tiro fallado y rebote nuestro', 'Rebote ofensivo y canasta', 'Pérdida', 'Falta en ataque', 'Tapón', 'Robo'] : ['Triple', 'Cistella de 2', 'Falta i tirs lliures', 'Tir fallat i rebot nostre', 'Rebot ofensiu i cistella', 'Pèrdua', 'Falta en atac', 'Tap', 'Robatori'];
     main.innerHTML = `<div class="qe">
-  <div>
+  ${media !== 'clip' ? otherLeft(q, media) : `<div>
     <div class="vbox" id="vbox"><video id="ev" playsinline preload="auto"></video>${src ? '' : `<div class="nov"><div><b>${q.clip ? 'Falta el vídeo de este clip' : 'Esta pregunta no tiene clip'}</b><br><span style="opacity:.8">${q.clip ? esc(q.clip.name) + '<br>Cárgalo desde el ordenador o elígelo de la biblioteca.' : 'Elige uno de la biblioteca o del ordenador.'}</span></div></div>`}<div class="pov" id="pov" hidden></div></div>
     <div class="tl" id="tl" aria-label="Línea de tiempo del clip"><div class="tr"></div><div class="seg" id="segA"></div><div class="seg b" id="segB"></div><div class="ph" id="ph"></div>
       <div class="mk from" data-m="from" title="Inicio: desde aquí se reproduce"><b>Inicio</b><i></i></div><div class="mk stop" data-m="stop" title="Parada: aquí se congela y salen las respuestas"><b>Parada</b><i></i></div><div class="mk to" data-m="to" title="Final: hasta aquí se ve al enseñar la respuesta"><b>Final</b><i></i></div></div>
@@ -478,9 +502,10 @@
     <div class="clipinfo"><span>Clip: <b>${esc(q.clip ? q.clip.name : '—')}</b>${q.clip && q.clip.folder ? ` · ${esc(q.clip.folder)}` : ''}${src ? ` · ${src.how === 'lib' ? 'biblioteca (nube)' : 'ordenador'}` : ''}</span>
       <span class="grow"></span><button class="btn sm" id="cLib">Cambiar por uno de la biblioteca…</button><label class="btn sm">…o del ordenador<input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" id="cFile"></label></div>
     <p class="hint" style="margin-top:8px">El nombre del clip no lo ve nadie (suele decir cómo acaba). En la partida solo se ve el texto de contexto y la pregunta.</p>
-  </div>
+  </div>`}
   <div>
-    <div class="f"><label for="fCtx">Contexto (se ve mientras corre el clip)</label><input type="text" id="fCtx" maxlength="80" placeholder="${lang === 'es' ? 'Ej.: Balance defensivo · 2º cuarto' : 'Ex.: Balanç defensiu · 2n quart'}"></div>
+    <div class="seg3" role="group" aria-label="Tipo de pregunta">${[['clip', '🎬 Con clip'], ['img', '🖼 Con imagen'], ['none', '✏️ Solo texto']].map(([k, l]) => `<button type="button" data-media="${k}" class="${media === k ? 'on' : ''}" aria-pressed="${media === k}">${l}</button>`).join('')}</div>
+    <div class="f"><label for="fCtx">Contexto (${media === 'clip' ? 'se ve mientras corre el clip' : 'se ve encima de la pregunta'})</label><input type="text" id="fCtx" maxlength="80" placeholder="${lang === 'es' ? 'Ej.: Balance defensivo · 2º cuarto' : 'Ex.: Balanç defensiu · 2n quart'}"></div>
     <div class="f"><label for="fText">Pregunta</label><input type="text" id="fText" class="qtext" maxlength="120"><div class="chips">${presetsQ.map(p => `<button class="chip" data-qp="${esc(p)}">${esc(p)}</button>`).join('')}</div></div>
     <div class="f"><span class="lab">Respuestas · marca la correcta</span>
       <div class="opts" id="opts"></div>
@@ -495,7 +520,8 @@
     <div id="warn"></div>
   </div>
 </div>`;
-    const v = E.v = $('#ev');
+    const v = E.v = media === 'clip' ? $('#ev') : null;
+    $$('[data-media]').forEach(b => b.onclick = () => { if (q.media === b.dataset.media) return; q.media = b.dataset.media; save(); renderList(); renderMain(); });
     $('#fCtx').value = q.ctx; $('#fText').value = q.text; $('#fLim').value = String(q.lim); $('#fPts').value = String(q.pts); $('#fExpl').value = q.expl; $('#fOn').checked = q.on;
     $('#fCtx').oninput = e => { q.ctx = e.target.value; save(); };
     $('#fText').oninput = e => { q.text = e.target.value; save(); refreshListItem(); };
@@ -514,9 +540,10 @@
     const oAdd = $('#oAdd'); if (oAdd) oAdd.onclick = () => { q.opts.push({ t: '', ok: false }); save(); renderMain(); };
     $('#oYN').onclick = () => { q.opts = [{ t: 'Sí', ok: false }, { t: 'No', ok: false }]; save(); renderMain(); };
     $('#oClr').onclick = () => { q.opts = [0, 1, 2, 3].map(() => ({ t: '', ok: false })); save(); renderMain(); };
+    renderOpts(q); renderWarn(q);
+    if (media !== 'clip') { tl = null; bindImg(q); return; }
     $('#cLib').onclick = () => libPicker('pick');
     $('#cFile').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (!f) return; const rec = BQ.addFile(f.name, f); BQ.cacheFile(rec); q.clip = clipFromFile(rec); q.stop = null; q.from = 0; q.to = null; save(); renderList(); renderMain(); };
-    renderOpts(q); renderWarn(q);
     // vídeo y línea de tiempo
     tl = { q, dur: q.clip && q.clip.dur || 0 };
     if (src) {
@@ -538,9 +565,66 @@
     $('#cTest').onclick = () => test();
     initTL(); drawTL();
   }
+  // ───────── preguntas sin clip (imagen o solo texto) y diapositivas ─────────
+  function otherLeft(q, media) {
+    const box = media === 'img'
+      ? `<div class="vbox imgbox drop" id="imgbox">${q.img ? `<img src="${q.img.src}" alt="">` : `<div class="nov"><div><b>Pon una imagen</b><br><span style="opacity:.8">Arrástrala aquí, pégala con Ctrl+V o elígela del ordenador.</span></div></div>`}</div>
+         <div class="clipinfo"><span>${q.img ? `Imagen: <b class="num">${q.img.w}×${q.img.h}</b>` : 'Sin imagen'}</span><span class="grow"></span><label class="btn sm">${q.img ? 'Cambiar imagen…' : 'Elegir imagen…'}<input type="file" accept="image/*" id="iFile"></label>${q.img ? '<button class="btn sm danger" id="iDel">Quitar</button>' : ''}</div>`
+      : `<div class="vbox txtbox"><div class="txq">${esc(q.text || 'Escribe la pregunta')}</div></div>`;
+    return `<div>${box}<p class="hint" style="margin-top:8px">${media === 'img' ? 'En la partida, la imagen sale en la pantalla grande con la pregunta y las respuestas debajo. Sirve para jugadas dibujadas, capturas, estadísticas…' : 'En la partida, la pregunta sale en grande en la pantalla y las respuestas debajo, como en Kahoot.'}</p></div>`;
+  }
+  function bindImg(q) {
+    const f = $('#iFile'); if (f) f.onchange = e => { const file = e.target.files[0]; e.target.value = ''; if (file) setImage(q, file); };
+    const d = $('#iDel'); if (d) d.onclick = () => { q.img = null; save(); renderList(); renderMain(); };
+    const t = $('.txq'), ft = $('#fText'); if (t && ft) ft.addEventListener('input', () => { t.textContent = q.text || 'Escribe la pregunta'; });
+  }
+  async function setImage(q, file) {
+    BQ.toast('Preparando la imagen…', 4000);
+    try { q.img = await BQ.readImage(file); } catch (e) { BQ.toast(e.message); return false; }
+    save(); renderList(); if (curQ() === q) renderMain(); BQ.toast('Imagen puesta'); return true;
+  }
+  function renderSlide(q) {
+    $('#main').innerHTML = `<div class="qe">
+  <div>
+    <div class="sprev drop" id="sPrev">${BQ.slideHtml(q)}</div>
+    <div class="clipinfo"><span>${q.img ? `Imagen: <b class="num">${q.img.w}×${q.img.h}</b>` : 'Sin imagen (es opcional)'}</span><span class="grow"></span><label class="btn sm">${q.img ? 'Cambiar imagen…' : 'Añadir imagen…'}<input type="file" accept="image/*" id="iFile"></label>${q.img ? '<button class="btn sm danger" id="iDel">Quitar imagen</button>' : ''}</div>
+    <p class="hint" style="margin-top:8px">Así se verá en la pantalla grande. En los móviles sale el título con «Mira la pantalla grande». No tiene respuestas ni puntos: se queda hasta que pulses Siguiente. También puedes pegar una imagen con Ctrl+V o arrastrarla aquí.</p>
+  </div>
+  <div>
+    <div class="f"><label for="sTitle">Título</label><input type="text" id="sTitle" maxlength="90" placeholder="Ej.: Claves contra Argentona"></div>
+    <div class="f"><label for="sBody">Texto</label><textarea id="sBody" rows="9" maxlength="900" placeholder="Escribe libremente. Cada línea que empiece por «-» sale como un punto:&#10;- Cerrar la línea de fondo&#10;- Ayudas desde el lado débil&#10;Con **dos asteriscos** va en negrita."></textarea></div>
+    <div class="f"><span class="lab">Si hay imagen y texto</span><div class="seg3">${[['split', 'Lado a lado'], ['big', 'Imagen grande y texto debajo']].map(([k, l]) => `<button type="button" data-lay="${k}" class="${q.lay === k ? 'on' : ''}" aria-pressed="${q.lay === k}">${l}</button>`).join('')}</div></div>
+    <div class="f"><label class="row" style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:500"><input type="checkbox" id="fOn"> Incluir esta diapositiva en la partida</label></div>
+    <div id="warn"></div>
+  </div>
+</div>`;
+    $('#sTitle').value = q.title; $('#sBody').value = q.body; $('#fOn').checked = q.on;
+    const upd = () => { $('#sPrev').innerHTML = BQ.slideHtml(q); refreshListItem(); };
+    $('#sTitle').oninput = e => { q.title = e.target.value; save(); upd(); };
+    $('#sBody').oninput = e => { q.body = e.target.value; save(); upd(); };
+    $('#fOn').onchange = e => { q.on = e.target.checked; save(); renderList(); };
+    $$('[data-lay]').forEach(b => b.onclick = () => { q.lay = b.dataset.lay; save(); renderMain(); });
+    bindImg(q); renderWarn(q);
+  }
+  // pegar una imagen (Ctrl+V): va a la diapositiva o pregunta con imagen elegida; si no, crea una diapositiva
+  function onPaste(e) {
+    if (E.live || $('.modal')) return;
+    const it = [...((e.clipboardData && e.clipboardData.items) || [])].find(i => i.kind === 'file' && /^image\//.test(i.type)); if (!it) return;
+    const f = it.getAsFile(); if (!f) return; e.preventDefault();
+    const q = curQ();
+    if (q && (BQ.isSlide(q) || BQ.media(q) === 'img')) setImage(q, f);
+    else { const s = BQ.newSlide(); insertAfter(s); setImage(s, f); }
+  }
+
   // en la lista manda el nombre del clip (las preguntas suelen repetirse); debajo, la pregunta y lo que falte
-  function itemText(q, pr) { return `<div class="t1">${esc(q.clip ? clipLabel(q.clip) : (q.text || 'Pregunta sin texto'))}</div><div class="t2">${pr.length ? `<span class="w">${esc(pr[0])}</span> · ` : ''}${esc(q.clip ? (q.text || 'sin pregunta') : 'sin clip')}${q.stop != null ? ` · para en ${BQ.fmtT(q.stop)}` : ''}</div>`; }
-  function refreshListItem() { const q = curQ(); if (!q) return; const li = $(`#qList .qi[data-id="${q.id}"]`); if (!li) return renderList(); li.querySelector('.tx').innerHTML = itemText(q, BQ.problems(q, q.clip ? !!BQ.resolveClip(q.clip) : null)); renderWarn(q); }
+  function itemText(q, pr) {
+    const w = pr.length ? `<span class="w">${esc(pr[0])}</span> · ` : '';
+    if (BQ.isSlide(q)) return `<div class="t1">🖼 ${esc(q.title || (q.body || '').split('\n')[0] || 'Diapositiva')}</div><div class="t2">${w}Diapositiva${q.img ? ' · con imagen' : ''} · no puntúa</div>`;
+    const m = BQ.media(q);
+    if (m !== 'clip') return `<div class="t1">${esc(q.text || 'Pregunta sin texto')}</div><div class="t2">${w}${m === 'img' ? 'Pregunta con imagen' : 'Pregunta de solo texto'}</div>`;
+    return `<div class="t1">${esc(q.clip ? clipLabel(q.clip) : (q.text || 'Pregunta sin texto'))}</div><div class="t2">${w}${esc(q.clip ? (q.text || 'sin pregunta') : 'sin clip')}${q.stop != null ? ` · para en ${BQ.fmtT(q.stop)}` : ''}</div>`;
+  }
+  function refreshListItem() { const q = curQ(); if (!q) return; const li = $(`#qList .qi[data-id="${q.id}"]`); if (!li) return renderList(); li.querySelector('.tx').innerHTML = itemText(q, BQ.problems(q, usesClip(q) ? !!BQ.resolveClip(q.clip) : null)); renderWarn(q); }
   function renderOpts(q) {
     $('#opts').innerHTML = q.opts.map((o, i) => `<div class="opt"><span class="sh bg${BQ.LETTERS[i]}" title="${BQ.LETTERS[i]}">${BQ.SHAPES[i]}</span><input type="text" data-oi="${i}" maxlength="70" value="${esc(o.t)}" placeholder="Respuesta ${BQ.LETTERS[i]}" aria-label="Respuesta ${BQ.LETTERS[i]}"><button class="okb ${o.ok ? 'on' : ''}" data-ok="${i}" aria-pressed="${o.ok}">${o.ok ? '✓ Correcta' : 'Correcta'}</button>${q.opts.length > 2 ? `<button class="x" data-rm="${i}" title="Quitar esta respuesta" aria-label="Quitar respuesta ${BQ.LETTERS[i]}">✕</button>` : '<span></span>'}</div>`).join('');
     $$('#opts input[data-oi]').forEach(inp => inp.oninput = () => { q.opts[+inp.dataset.oi].t = inp.value; save(); refreshListItem(); });
@@ -548,7 +632,8 @@
     $$('#opts [data-rm]').forEach(b => b.onclick = () => { q.opts.splice(+b.dataset.rm, 1); save(); renderMain(); });
   }
   function renderWarn(q) {
-    const w = $('#warn'); if (!w) return; const pr = BQ.problems(q, q.clip ? !!BQ.resolveClip(q.clip) : null);
+    const w = $('#warn'); if (!w) return; const pr = BQ.problems(q, usesClip(q) ? !!BQ.resolveClip(q.clip) : null);
+    if (BQ.isSlide(q)) { w.innerHTML = pr.length ? `<div class="warns">${esc(pr[0])}: pon un título, texto o una imagen</div>` : '<div class="okmsg">Lista: se verá en la pantalla grande hasta que pulses Siguiente</div>'; return; }
     const multi = BQ.liveOpts(q).filter(o => o.ok).length > 1;
     w.innerHTML = pr.length ? `<div class="warns">Falta: ${esc(pr.join(', '))}</div>` : `<div class="okmsg">Lista para jugar${multi ? ' · hay más de una respuesta correcta (cualquiera vale)' : ''}</div>`;
   }
@@ -617,7 +702,7 @@
     const c = BQ.cfg();
     const m = BQ.modal('Ajustes', `
       <div class="f"><label for="sPub">Dirección de la página para los móviles (va en el QR)</label><input type="text" id="sPub" class="inp" placeholder="${esc(BQ.joinBase())}"><span class="hint" style="margin:0">Vacío = esta misma página${/^https?:$/.test(location.protocol) ? '' : ' (abierta desde archivo: se usará ${esc(BQ.prettyUrl(BQ.HOME))})'}.</span></div>
-      <div class="f"><label for="sNet">Conexión con los móviles</label><select id="sNet" class="inp"><option value="supa">Por internet (Supabase de BascatApp)</option><option value="local">Ensayo en este ordenador (pestañas del mismo navegador)</option></select></div>
+      <div class="f"><label for="sNet">Conexión con los móviles</label><select id="sNet" class="inp"><option value="supa">Por internet (Supabase de BasketApp)</option><option value="local">Ensayo en este ordenador (pestañas del mismo navegador)</option></select></div>
       <div class="f"><label class="row" style="text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:500"><input type="checkbox" id="sSnd"> Sonidos en la pantalla grande</label></div>
       <details><summary class="muted" style="cursor:pointer">Avanzado: proyecto de Supabase</summary>
         <div class="f" style="margin-top:10px"><label for="sUrl">URL</label><input type="text" id="sUrl" class="inp"></div>
@@ -635,7 +720,8 @@
   function help() {
     BQ.modal('Cómo funciona', `
       <ol style="margin:0 0 12px;padding-left:20px;display:flex;flex-direction:column;gap:8px">
-        <li><b>Preparar.</b> Añade clips de la biblioteca de BascatApp o del ordenador: cada clip es una pregunta. Marca dónde empieza, dónde <b>se para</b> (ahí salen las respuestas) y hasta dónde se ve al enseñar la solución. Escribe la pregunta y de 2 a 4 respuestas, y marca la correcta. <b>Probar</b> lo reproduce como en la partida.</li>
+        <li><b>Preparar.</b> Añade clips de la biblioteca de BasketApp o del ordenador: cada clip es una pregunta. Marca dónde empieza, dónde <b>se para</b> (ahí salen las respuestas) y hasta dónde se ve al enseñar la solución. Escribe la pregunta y de 2 a 4 respuestas, y marca la correcta. <b>Probar</b> lo reproduce como en la partida.</li>
+        <li><b>Sin clip.</b> Con <b>＋ Diapositiva</b> pones una pantalla con título, texto (cada línea con «-» es un punto, **así** va en negrita) e imagen: no tiene respuestas ni puntos y se queda hasta que pasas. Una pregunta también puede ir <b>con imagen</b> o <b>solo con texto</b> (botones encima del contexto). Las imágenes se pueden arrastrar o pegar con Ctrl+V.</li>
         <li><b>Jugar.</b> En la pantalla grande sale un QR y un código de 5 letras. Los jugadores entran desde el móvil en <b>${esc(BQ.prettyUrl(BQ.joinBase()))}</b> y ponen su nombre.</li>
         <li><b>Tú mandas.</b> Con <b>Siguiente</b> (o la barra espaciadora): clip → se para → responden con tiempo → <b>Mostrar la respuesta</b> (se ve cómo acaba) → <b>Clasificación</b> → siguiente pregunta. Al final, podio y tabla de resultados (se puede descargar en CSV).</li>
       </ol>
@@ -673,10 +759,10 @@
   // ───────── jugar ─────────
   async function startGame() {
     const qs = E.quiz.qs.filter(q => q.on);
-    if (!qs.length) { BQ.toast('No hay preguntas activas'); return; }
-    const bad = qs.map((q, i) => ({ i, q, pr: BQ.problems(q, q.clip ? !!BQ.resolveClip(q.clip) : null).filter(p => p !== 'falta el vídeo' && p !== 'sin clip') })).filter(x => x.pr.length);
-    if (bad.length) { select(bad[0].q.id); BQ.toast(`La pregunta ${bad[0].i + 1} no está lista: ${bad[0].pr.join(', ')}`, 5000); return; }
-    const noVid = qs.filter(q => !BQ.resolveClip(q.clip)).length;
+    if (!qs.length) { BQ.toast('No hay nada activo para jugar'); return; }
+    const bad = qs.map((q, i) => ({ i, q, pr: BQ.problems(q, usesClip(q) ? !!BQ.resolveClip(q.clip) : null).filter(p => p !== 'falta el vídeo' && p !== 'sin clip') })).filter(x => x.pr.length);
+    if (bad.length) { select(bad[0].q.id); BQ.toast(`${BQ.isSlide(bad[0].q) ? 'La diapositiva' : 'El elemento'} ${bad[0].i + 1} no está listo: ${bad[0].pr.join(', ')}`, 5000); return; }
+    const noVid = qs.filter(q => !BQ.isSlide(q) && BQ.media(q) === 'clip' && !BQ.resolveClip(q.clip)).length;
     if (noVid && !await BQ.ask('Faltan vídeos', `${noVid} ${noVid === 1 ? 'pregunta no tiene' : 'preguntas no tienen'} el vídeo cargado. Se jugarán solo con el texto. ¿Seguir?`, 'Jugar igualmente')) return;
     if (E.v) E.v.pause();
     BQ.sound.unlock();

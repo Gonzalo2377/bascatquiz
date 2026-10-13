@@ -13,7 +13,7 @@
       notFound: 'No trobo la partida {c}. Revisa el codi o espera que el staff l’obri.', connecting: 'Connectant…', connErr: 'Sense connexió, tornant a provar…',
       double: 'Punts dobles', noPts: 'Sense punts', over: 'Fi de la partida', thanks: 'Gràcies per jugar!', total: 'Total',
       nameTaken: 'Escriu el teu nom', otherName: 'Canviar de nom', yourAns: 'La teva resposta', ofN: 'de {n}', gotIt: '{a} de {n} han respost',
-      outcome: 'Mireu com acaba', ready: 'Preparats?', fast: 'Ràpid!',
+      outcome: 'Mireu com acaba', ready: 'Preparats?', fast: 'Ràpid!', slide: 'Diapositiva', readQ: 'Llegiu la pregunta',
     },
     es: {
       join: 'Entra en la partida', code: 'Código', name: 'Tu nombre', namePh: 'Nombre o apodo', enter: 'Entrar',
@@ -26,7 +26,7 @@
       notFound: 'No encuentro la partida {c}. Revisa el código o espera a que el staff la abra.', connecting: 'Conectando…', connErr: 'Sin conexión, reintentando…',
       double: 'Puntos dobles', noPts: 'Sin puntos', over: 'Fin de la partida', thanks: '¡Gracias por jugar!', total: 'Total',
       nameTaken: 'Escribe tu nombre', otherName: 'Cambiar de nombre', yourAns: 'Tu respuesta', ofN: 'de {n}', gotIt: '{a} de {n} han respondido',
-      outcome: 'Mirad cómo acaba', ready: '¿Preparados?', fast: '¡Rápido!',
+      outcome: 'Mirad cómo acaba', ready: '¿Preparados?', fast: '¡Rápido!', slide: 'Diapositiva', readQ: 'Leed la pregunta',
     },
   };
   const BQ = window.BQ;

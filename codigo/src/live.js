@@ -7,6 +7,10 @@
   let G = null, conn = null, connOk = false, hb = null, tmr = null, bcT = null, stopSeg = null, slow = false, podT = [];
   const T = (k, v) => BQ.t(G.lang, k, v);
   const q = () => G && G.i >= 0 ? G.qs[G.i] : null;
+  // diapositivas entre preguntas: no cuentan en «Pregunta X de N» ni en los resultados
+  const isS = x => BQ.isSlide(x), md = x => BQ.media(x);
+  const nQ = () => G.qs.filter(x => !isS(x)).length;
+  const qNo = i => G.qs.slice(0, i + 1).filter(x => !isS(x)).length;
   const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
 
   // ───────── partida guardada (por si se recarga la página a media partida) ─────────
@@ -22,7 +26,7 @@
 
   Live.start = quiz => {
     const qs = quiz.qs.filter(x => x.on).map(x => {
-      const c = BQ.clone(x); c.o = BQ.liveOpts(x); return c;
+      const c = BQ.clone(x); c.o = BQ.isSlide(x) ? [] : BQ.liveOpts(x); return c;
     });
     G = { code: BQ.code(), net: BQ.cfg().net, quizId: quiz.id, title: quiz.title, lang: quiz.lang || 'ca', started: Date.now(), touched: Date.now(), qs, ph: 'lobby', i: -1, players: {}, order: [], ban: [], openAt: 0, closedAt: 0, seq: 0, extra: 0 };
     persist(); mount();
@@ -31,7 +35,7 @@
     G = g; if (G.ph === 'q') { G.ph = 'closed'; G.closedAt = Date.now(); scoreQuestion(); }
     mount(); if (G.ph === 'play') startQ(G.i); else if (G.ph === 'closed' || G.ph === 'reveal') showStopFrame();
   }
-  function showStopFrame() { const x = q(), s = x && BQ.resolveClip(x.clip); if (s) loadVideo(s.url).then(() => BQ.seek($('#lv'), x.stop == null ? $('#lv').duration : x.stop)).catch(() => { }); }
+  function showStopFrame() { const x = q(), s = x && !isS(x) && md(x) === 'clip' && BQ.resolveClip(x.clip); if (s) loadVideo(s.url).then(() => BQ.seek($('#lv'), x.stop == null ? $('#lv').duration : x.stop)).catch(() => { }); }
 
   // ───────── conexión ─────────
   function connect() {
@@ -43,8 +47,9 @@
     clearInterval(hb); hb = setInterval(() => sendState(), 2500);
   }
   function stateMsg() {
-    const x = q(), m = { c: G.code, s: ++G.seq, ph: G.ph, i: G.i, n: G.qs.length, lang: G.lang };
-    if (x && ['play', 'q', 'closed', 'reveal'].includes(G.ph)) m.q = { id: x.id, x: x.text, c: x.ctx, p: x.pts, l: x.lim };
+    const x = q(), m = { c: G.code, s: ++G.seq, ph: G.ph, i: x && !isS(x) ? qNo(G.i) - 1 : G.i, n: nQ(), lang: G.lang };
+    if (x && isS(x) && G.ph === 'slide') m.sl = { id: x.id, t: (x.title || '').slice(0, 90), x: (x.body || '').replace(/\*\*/g, '').replace(/^\s*[-•*]\s+/gm, '• ').slice(0, 400) };
+    if (x && ['play', 'q', 'closed', 'reveal'].includes(G.ph)) m.q = { id: x.id, x: x.text, c: x.ctx, p: x.pts, l: x.lim, md: md(x) };
     if (x && ['q', 'closed', 'reveal'].includes(G.ph)) { m.q.o = x.o.map(o => o.t); m.q.k = x.o.map(o => o.i); }
     if (G.ph === 'q') m.r = Math.max(0, G.openAt + (x.lim + G.extra) * 1000 - Date.now());
     if (x && ['q', 'closed'].includes(G.ph)) m.got = G.order.filter(pid => G.players[pid] && G.players[pid].ans[x.id]);
@@ -113,13 +118,19 @@
     else if (G.ph === 'q') closeQ();
     else if (G.ph === 'closed') reveal();
     else if (G.ph === 'reveal') board();
-    else if (G.ph === 'board') { if (G.i + 1 < G.qs.length) startQ(G.i + 1); else end(); }
+    else if (G.ph === 'board' || G.ph === 'slide') { if (G.i + 1 < G.qs.length) startQ(G.i + 1); else end(); }
     else if (G.ph === 'end') { exit(); BQ.history(0); }
   }
   function startQ(i) {
-    G.i = i; G.ph = 'play'; G.extra = 0; slow = false; persist(); sendState(); render();
-    const x = q(), v = $('#lv'), src = BQ.resolveClip(x.clip);
-    if (!src) { setTimeout(() => { if (G && G.ph === 'play' && q() === x) openQ(); }, 2200); return; }
+    G.i = i; G.extra = 0; slow = false;
+    if (stopSeg) { stopSeg(); stopSeg = null; }
+    const v = $('#lv');
+    // diapositiva: se queda en pantalla hasta que el staff pasa
+    if (isS(G.qs[i])) { if (v) v.pause(); G.ph = 'slide'; persist(); sendState(); render(); return; }
+    G.ph = 'play'; persist(); sendState(); render();
+    const x = q(), src = md(x) === 'clip' ? BQ.resolveClip(x.clip) : null;
+    // sin clip (imagen o solo texto): un momento para leer la pregunta y se abren las respuestas
+    if (!src) { if (v) v.pause(); setTimeout(() => { if (G && G.ph === 'play' && q() === x) openQ(); }, md(x) === 'clip' ? 2200 : 3500); return; }
     loadVideo(src.url).then(() => {
       if (!G || G.ph !== 'play' || q() !== x) return;
       const stop = x.stop == null ? v.duration : Math.min(x.stop, v.duration);
@@ -171,7 +182,7 @@
     playOutcome();
   }
   function playOutcome() {
-    const x = q(), v = $('#lv'); if (!x || !v || !v.src || !isFinite(v.duration)) return;
+    const x = q(), v = $('#lv'); if (!x || isS(x) || md(x) !== 'clip' || !v || !v.src || !isFinite(v.duration)) return;
     const stop = x.stop == null ? v.duration : x.stop, to = x.to == null ? v.duration : Math.min(x.to, v.duration);
     if (stopSeg) stopSeg();
     if (to - stop > 0.3) stopSeg = BQ.playSeg(v, stop, to, slow ? 0.5 : 1, null);
@@ -181,17 +192,17 @@
     if (stopSeg) { stopSeg(); stopSeg = null; }
     G.ph = 'board'; persist(); sendState(); render();
     // ir cargando el siguiente clip
-    const nx = G.qs[G.i + 1]; if (nx) { const s = BQ.resolveClip(nx.clip); if (s) loadVideo(s.url).then(() => BQ.seek($('#lv'), nx.from || 0)).catch(() => { }); }
+    const nx = G.qs[G.i + 1]; if (nx && !isS(nx) && md(nx) === 'clip') { const s = BQ.resolveClip(nx.clip); if (s) loadVideo(s.url).then(() => BQ.seek($('#lv'), nx.from || 0)).catch(() => { }); }
   }
   function end() {
     G.ph = 'end'; persist(); sendState(); BQ.sound.fanfare(); render(); saveHistory();
   }
   function saveHistory() {
-    const ids = rank(), H = BQ.store.get('hist', []);
+    const ids = rank(), H = BQ.store.get('hist', []), QS = G.qs.filter(x => !isS(x));
     H.unshift({
       date: G.started, title: G.title, code: G.code,
-      qs: G.qs.map(x => ({ text: x.text, ctx: x.ctx, opts: x.o.map(o => o.t), ok: x.o.map((o, j) => o.ok ? j : -1).filter(j => j >= 0) })),
-      players: ids.map(id => { const p = G.players[id]; return { name: p.name, score: p.score, ans: G.qs.map(x => p.ans[x.id] ? { o: p.ans[x.id].o, ms: p.ans[x.id].ms, ok: !!p.ans[x.id].ok, pts: p.ans[x.id].pts || 0 } : null) }; }),
+      qs: QS.map(x => ({ text: x.text, ctx: x.ctx, opts: x.o.map(o => o.t), ok: x.o.map((o, j) => o.ok ? j : -1).filter(j => j >= 0) })),
+      players: ids.map(id => { const p = G.players[id]; return { name: p.name, score: p.score, ans: QS.map(x => p.ans[x.id] ? { o: p.ans[x.id].o, ms: p.ans[x.id].ms, ok: !!p.ans[x.id].ok, pts: p.ans[x.id].pts || 0 } : null) }; }),
     });
     BQ.store.set('hist', H.slice(0, 60));
     if (BQ.E.pushResult) BQ.E.pushResult(H[0]);
@@ -226,7 +237,7 @@
 </div>
 <div class="stage" id="stage">
   <div class="qhead" id="lHead"></div>
-  <div class="mid"><div id="lLeft"></div><div class="vwrap"><video id="lv" playsinline preload="auto"></video><div class="vmsg" id="lMsg" hidden></div><div class="flash" id="lFlash" hidden></div><div class="expl" id="lExpl" hidden></div></div><div id="lRight"></div></div>
+  <div class="mid"><div id="lLeft"></div><div class="vwrap"><video id="lv" playsinline preload="auto"></video><img id="lImg" class="limg" alt="" hidden><div class="vmsg" id="lMsg" hidden></div><div class="flash" id="lFlash" hidden></div><div class="expl" id="lExpl" hidden></div></div><div id="lRight"></div></div>
   <div class="tiles" id="lTiles"></div>
   <div class="panel" id="lPanel" hidden></div>
 </div>
@@ -253,7 +264,7 @@
     else if (a === 'exit') { if (G.ph !== 'end' && G.ph !== 'lobby' && !await BQ.ask('Volver al editor', 'La partida queda guardada: al volver a abrir esta página podrás continuarla.', 'Salir')) return; if (G.ph === 'lobby') BQ.store.del('game'); exit(); }
   }
   function replay() {
-    const x = q(), v = $('#lv'); if (!x || !v || !v.src || !isFinite(v.duration)) return;
+    const x = q(), v = $('#lv'); if (!x || isS(x) || md(x) !== 'clip' || !v || !v.src || !isFinite(v.duration)) return;
     if (stopSeg) stopSeg();
     if (G.ph === 'play') { stopSeg = BQ.playSeg(v, x.from || 0, x.stop == null ? v.duration : x.stop, 1, () => { if (G && G.ph === 'play' && q() === x) openQ(); }); }
     else if (G.ph === 'reveal' || G.ph === 'closed' || G.ph === 'q') { const stop = x.stop == null ? v.duration : x.stop; stopSeg = BQ.playSeg(v, x.from || 0, G.ph === 'reveal' ? (x.to == null ? v.duration : x.to) : stop, slow ? 0.5 : 1, null); }
@@ -267,7 +278,8 @@
   }
   function updBar() {
     if (!G) return; const n = G.order.length;
-    $('#lQn').textContent = G.i < 0 ? `${G.qs.length} preguntas` : `Pregunta ${G.i + 1} / ${G.qs.length}`;
+    const nS = G.qs.length - nQ();
+    $('#lQn').textContent = G.i < 0 ? `${nQ()} preguntas${nS ? ` · ${nS} diapositivas` : ''}` : isS(q()) ? 'Diapositiva' : `Pregunta ${qNo(G.i)} / ${nQ()}`;
     $('#lNp').textContent = `${n} ${n === 1 ? 'jugador' : 'jugadores'}`;
     $('#lSnd').textContent = BQ.cfg().sound ? '🔊 Sonido' : '🔇 Sin sonido';
   }
@@ -278,26 +290,39 @@
     closed: 'Respuestas cerradas. Cuando quieras, enseña la respuesta correcta.',
     reveal: 'Se ve cómo acaba la jugada. Repítelo o comenta, y luego pasa a la clasificación.',
     board: 'Clasificación después de esta pregunta.',
+    slide: 'Diapositiva: los móviles ven el título y «Mira la pantalla». Comenta y pasa cuando quieras.',
     end: 'Partida terminada.',
   };
-  const NEXT = { lobby: 'Empezar ▶', play: 'Saltar a la parada ▶', q: 'Cerrar respuestas', closed: 'Mostrar la respuesta ▶', reveal: 'Clasificación ▶', board: 'Siguiente pregunta ▶', end: 'Ver resultados' };
+  // preguntas con imagen o solo texto
+  const HINT_NC = {
+    play: 'Un momento para leer la pregunta: las respuestas se abren solas. Siguiente = abrir ya.',
+    q: 'Respondiendo… Se cierra al acabar el tiempo o cuando han respondido todos. Siguiente = cerrar ya.',
+    reveal: 'Respuesta correcta en pantalla. Comenta y pasa a la clasificación.',
+  };
+  const NEXT = { lobby: 'Empezar ▶', play: 'Saltar a la parada ▶', q: 'Cerrar respuestas', closed: 'Mostrar la respuesta ▶', reveal: 'Clasificación ▶', board: 'Siguiente ▶', slide: 'Siguiente ▶', end: 'Ver resultados' };
 
   function render() {
     if (!G || !$('#live')) return; updBar();
-    const x = q(), ph = G.ph;
-    $('#lHint').textContent = HINT[ph];
-    const nb = $('#lNext'); nb.textContent = ph === 'board' && G.i + 1 >= G.qs.length ? 'Podio ▶' : NEXT[ph]; nb.classList.toggle('pulse', ph === 'closed' || (ph === 'lobby' && G.order.length > 0));
-    $('#lPrev').hidden = !(ph === 'q' || ph === 'closed' || ph === 'reveal'); // en cuanto el clip ha llegado a la parada
+    const x = q(), ph = G.ph, last = G.i + 1 >= G.qs.length, noClip = x && !isS(x) && md(x) !== 'clip';
+    $('#lHint').textContent = noClip && HINT_NC[ph] || HINT[ph];
+    const nb = $('#lNext'); nb.textContent = (ph === 'board' || ph === 'slide') && last ? 'Podio ▶' : noClip && ph === 'play' ? 'Abrir respuestas ▶' : NEXT[ph]; nb.classList.toggle('pulse', ph === 'closed' || (ph === 'lobby' && G.order.length > 0));
+    $('#lPrev').hidden = !(ph === 'q' || ph === 'closed' || ph === 'reveal') || !x || isS(x) || md(x) !== 'clip'; // en cuanto el clip ha llegado a la parada
     const panel = $('#lPanel');
-    if (ph === 'lobby' || ph === 'board' || ph === 'end') { panel.hidden = false; renderPanel(); }
+    if (ph === 'lobby' || ph === 'board' || ph === 'end' || ph === 'slide') { panel.hidden = false; renderPanel(); }
     else panel.hidden = true;
-    if (!x) { $('#lHead').innerHTML = ''; $('#lTiles').innerHTML = ''; $('#lLeft').innerHTML = ''; $('#lRight').innerHTML = ''; return; }
-    // cabecera: número, contexto y pregunta
-    $('#lHead').innerHTML = `<span class="qn num">${esc(T('qn', { i: G.i + 1, n: G.qs.length }))}</span><span class="qt">${esc(x.text)}</span>${x.pts === 2 ? `<span class="tag">${esc(T('double'))}</span>` : x.pts === 0 ? `<span class="tag">${esc(T('noPts'))}</span>` : ''}${x.ctx ? `<span class="ctx">${esc(x.ctx)}</span>` : ''}`;
-    const src = BQ.resolveClip(x.clip); const msg = $('#lMsg');
-    if (!src) { msg.hidden = false; msg.textContent = x.ctx || T('qn', { i: G.i + 1, n: G.qs.length }); } else if (ph !== 'play') msg.hidden = true;
+    if (!x || isS(x)) { $('#lHead').innerHTML = ''; $('#lTiles').innerHTML = ''; $('#lLeft').innerHTML = ''; $('#lRight').innerHTML = ''; $('#lFlash').hidden = true; $('#lExpl').hidden = true; return; }
+    const m = md(x), nTxt = T('qn', { i: qNo(G.i), n: nQ() });
+    // cabecera: número, contexto y pregunta (en las de solo texto, la pregunta va en grande en el centro)
+    $('#lHead').innerHTML = `<span class="qn num">${esc(nTxt)}</span><span class="qt">${m === 'none' ? '' : esc(x.text)}</span>${x.pts === 2 ? `<span class="tag">${esc(T('double'))}</span>` : x.pts === 0 ? `<span class="tag">${esc(T('noPts'))}</span>` : ''}${x.ctx ? `<span class="ctx">${esc(x.ctx)}</span>` : ''}`;
+    const src = m === 'clip' ? BQ.resolveClip(x.clip) : null, msg = $('#lMsg'), img = $('#lImg');
+    $('#lv').style.visibility = src ? 'visible' : 'hidden';
+    if (m === 'img' && x.img) { if (img.getAttribute('src') !== x.img.src) img.src = x.img.src; img.hidden = false; } else { img.hidden = true; img.removeAttribute('src'); }
+    msg.classList.toggle('bigq', m === 'none');
+    if (m === 'none') { msg.hidden = false; msg.textContent = x.text; }
+    else if (m === 'img') msg.hidden = true;
+    else if (!src) { msg.hidden = false; msg.textContent = x.ctx || nTxt; } else if (ph !== 'play') msg.hidden = true;
     const fl = $('#lFlash');
-    if (ph === 'play') { fl.hidden = false; fl.textContent = T('watch'); } else if (ph === 'closed') { fl.hidden = false; fl.textContent = T('timeUp'); } else if (ph === 'reveal' && (x.to == null || x.to - (x.stop || 0) > 0.3)) { fl.hidden = false; fl.textContent = T('outcome'); } else fl.hidden = true;
+    if (ph === 'play') { fl.hidden = false; fl.textContent = m === 'clip' ? T('watch') : T('readQ'); } else if (ph === 'closed') { fl.hidden = false; fl.textContent = T('timeUp'); } else if (ph === 'reveal' && m === 'clip' && (x.to == null || x.to - (x.stop || 0) > 0.3)) { fl.hidden = false; fl.textContent = T('outcome'); } else fl.hidden = true;
     const ex = $('#lExpl'); ex.hidden = !(ph === 'reveal' && x.expl); ex.textContent = x.expl || '';
     // lados: tiempo y respuestas recibidas
     if (ph === 'q') { $('#lLeft').innerHTML = `<div class="ring" id="lRing"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="#3a2c2f" stroke-width="8"/><circle id="lArc" cx="50" cy="50" r="44" fill="none" stroke="#e2b23a" stroke-width="8" stroke-linecap="round" stroke-dasharray="276.5" stroke-dashoffset="0"/></svg><span class="v num" id="lSec"></span></div>`; drawRing(G.openAt + (x.lim + G.extra) * 1000 - Date.now(), (x.lim + G.extra) * 1000); }
@@ -345,6 +370,12 @@
       $$('.nm', box).forEach(b => { if (!G.players[b.dataset.p]) b.remove(); else b.textContent = G.players[b.dataset.p].name; });
       return;
     }
+    if (G.ph === 'slide') {
+      const x = q(); if (!x) return;
+      if (p.dataset.sl !== x.id) { p.dataset.sl = x.id; p.innerHTML = `<div class="slidewrap">${BQ.slideHtml(x)}</div>`; }
+      return;
+    }
+    p.dataset.sl = '';
     if (G.ph === 'board') {
       const ids = rank(), top = ids.slice(0, 5), x = q();
       p.innerHTML = `<div class="board"><h2>${esc(T('board'))}</h2>${top.map(id => { const pl = G.players[id], mv = (pl.prev || pl.rank) - pl.rank, d = pl.last && pl.last.q === x.id ? pl.last.pts : 0; return `<div class="brow ${pl.rank === 1 ? 'first' : ''}"><span class="r num">${pl.rank}</span><span class="nm">${esc(pl.name)}</span><span class="d num">${d ? '+' + BQ.fmtN(d) : ''}</span><span class="num">${BQ.fmtN(pl.score)}<span class="mv ${mv > 0 ? 'up' : mv < 0 ? 'dn' : ''}">${mv > 0 ? '▲' + mv : mv < 0 ? '▼' + (-mv) : ''}</span></span></div>`; }).join('') || `<p class="how">${esc(T('waiting'))}</p>`}
