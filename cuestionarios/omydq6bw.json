@@ -1,10 +1,10 @@
 {
  "v": 1,
  "id": "omydq6bw",
- "title": "Nuevo cuestionario",
+ "title": "12 Octubre Post Win Argentona",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791831536270,
+ "updated": 1791878983466,
  "qs": [
   {
    "id": "f486bi",
@@ -15,7 +15,7 @@
     "name": "reject",
     "folder": "BD",
     "lib": "U.E. CLARET A vs IBERSOFAS - CLUB BÀSQUET ARGENTONA",
-    "dur": 20.6
+    "dur": 20.5
    },
    "from": 2.95,
    "stop": 14.53,
@@ -454,5 +454,7 @@
    "pts": 1,
    "expl": ""
   }
- ]
+ ],
+ "author": "Gonzalo",
+ "by": "Gonzalo"
 }
