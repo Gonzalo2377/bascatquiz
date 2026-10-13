@@ -4,7 +4,7 @@
  "title": "12 Octubre Post Win Argentona",
  "lang": "ca",
  "created": 1790871006124,
- "updated": 1791879263817,
+ "updated": 1791879268773,
  "qs": [
   {
    "id": "f486bi",
@@ -42,7 +42,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "none",
+   "img": null
   },
   {
    "id": "s5cjac",
@@ -80,7 +82,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "3t7ahr",
@@ -110,7 +114,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "swqovh",
@@ -148,7 +154,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "n72eh4",
@@ -186,7 +194,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "ozwhf2",
@@ -224,7 +234,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "4bcefp",
@@ -262,7 +274,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "eso5i8",
@@ -300,7 +314,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "n28ni9",
@@ -338,7 +354,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "veafvq",
@@ -376,7 +394,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "25hz5p",
@@ -414,7 +434,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   },
   {
    "id": "mmcf29",
@@ -452,7 +474,9 @@
    ],
    "lim": 20,
    "pts": 1,
-   "expl": ""
+   "expl": "",
+   "media": "clip",
+   "img": null
   }
  ],
  "author": "Gonzalo",
