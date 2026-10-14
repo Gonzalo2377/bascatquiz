@@ -1,0 +1,51 @@
+{
+ "v": 1,
+ "id": "9xrbgkat",
+ "title": "Nuevo cuestionario",
+ "lang": "ca",
+ "created": 1791987871750,
+ "updated": 1791987939413,
+ "qs": [
+  {
+   "id": "c9zkuz",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-off_t3_ok00.07.48.107-00.08.00.860.MOV",
+    "name": "-off_t3_ok00.07.48.107-00.08.00.860",
+    "folder": "",
+    "dur": 13.44,
+    "gh": "videos/off_t3_ok00_07_48_107_00_08_00-25544748.mov"
+   },
+   "from": 0,
+   "stop": 10.94,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  }
+ ],
+ "author": ""
+}
