@@ -24,11 +24,39 @@
   };
 
   // ── guardado en este navegador ──
+  // Los cuestionarios («quiz.<id>») van a la base de datos del navegador (IndexedDB): no tiene el límite de ~5 MB del
+  // guardado rápido (localStorage), que se llenaba con unas pocas fotos. Se cargan todos en memoria al arrancar (BQ.ready),
+  // así que BQ.store se sigue usando igual. Los pequeños se copian también en localStorage como respaldo.
+  const QM = new Map(), isQ = k => /^quiz\./.test(k), LSMAX = 400000;
+  const QDB = { db: null };
+  QDB.open = () => QDB.db || (QDB.db = new Promise(res => { try { const r = indexedDB.open('bqz-quiz', 1); r.onupgradeneeded = () => r.result.createObjectStore('q'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); } catch (e) { res(null); } }));
+  QDB.tx = async (mode, fn) => { const db = await QDB.open(); if (!db) return null; return new Promise(res => { try { const t = db.transaction('q', mode), st = t.objectStore('q'); const out = fn(st); t.oncomplete = () => res(out && out.result !== undefined ? out.result : true); t.onerror = () => res(null); t.onabort = () => res(null); } catch (e) { res(null); } }); };
+  const lsSet = (k, s) => { try { if (s.length <= LSMAX) localStorage.setItem('bqz.' + k, s); else localStorage.removeItem('bqz.' + k); return true; } catch (e) { return false; } };
   BQ.store = {
-    get(k, d) { try { const v = localStorage.getItem('bqz.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem('bqz.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
-    del(k) { try { localStorage.removeItem('bqz.' + k); } catch (e) { } },
+    get(k, d) { if (isQ(k)) { const s = QM.get(k); return s == null ? d : JSON.parse(s); } try { const v = localStorage.getItem('bqz.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) {
+      if (isQ(k)) {
+        const s = JSON.stringify(v); QM.set(k, s); lsSet(k, s);
+        QDB.tx('readwrite', st => st.put(s, k)).then(ok => { if (!ok && s.length > LSMAX) BQ.toast('No se ha podido guardar en este navegador. Guarda el proyecto completo (.zip) para no perderlo.', 8000); });
+        return true;
+      }
+      try { localStorage.setItem('bqz.' + k, JSON.stringify(v)); return true; } catch (e) { return false; }
+    },
+    del(k) { if (isQ(k)) { QM.delete(k); QDB.tx('readwrite', st => st.delete(k)); } try { localStorage.removeItem('bqz.' + k); } catch (e) { } },
   };
+  // al arrancar: cuestionarios de IndexedDB + los que hubiera en localStorage (de antes, o más nuevos por si acaso)
+  BQ.ready = (async () => {
+    try {
+      const rows = await QDB.tx('readonly', st => { const out = { result: [] }; const c = st.openCursor(); c.onsuccess = () => { const cur = c.result; if (cur) { out.result.push([cur.key, cur.value]); cur.continue(); } }; return out; });
+      (rows || []).forEach(([k, s]) => QM.set(k, s));
+    } catch (e) { }
+    const upd = s => { try { return JSON.parse(s).updated || 0; } catch (e) { return 0; } };
+    for (let i = 0; i < localStorage.length; i++) {
+      const lk = localStorage.key(i); if (!/^bqz\.quiz\./.test(lk)) continue;
+      const k = lk.slice(4), s = localStorage.getItem(lk);
+      if (!QM.has(k) || upd(s) > upd(QM.get(k))) { QM.set(k, s); QDB.tx('readwrite', st => st.put(s, k)); }
+    }
+  })();
 
   // Vídeos del ordenador guardados en el navegador, para no tener que volver a elegirlos cada vez
   const IDB = { db: null };
@@ -280,10 +308,46 @@
     fanfare() { [392, 523, 659, 784, 659, 784, 1047].forEach((f, i) => this.beep(f, 0.3, 'triangle', 0.12, i * 0.13)); },
   };
 
-  // descarga de un archivo generado (CSV, JSON)
-  BQ.download = (name, text, type) => {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: type || 'application/octet-stream' })); a.download = name;
-    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  // descarga de un archivo generado (CSV, JSON) o de un archivo ya hecho (zip del proyecto)
+  BQ.download = (name, text, type) => BQ.downloadBlob(name, text instanceof Blob ? text : new Blob([text], { type: type || 'application/octet-stream' }));
+  BQ.downloadBlob = (name, blob) => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 60000);
   };
+
+  // ── recortar un trozo [a, b] de un vídeo del ordenador (para subir a la nube solo lo que usa la pregunta) ──
+  // Se graba en tiempo real (un clip de 15 s tarda unos 15 s), sin que suene: el audio va directo a la grabación.
+  BQ.cutSegment = (rec, a, b, onProg) => new Promise((res, rej) => {
+    const v = document.createElement('video'); v.src = rec.url; v.preload = 'auto'; v.playsInline = true;
+    v.style.cssText = 'position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:.01;pointer-events:none;z-index:-1';
+    document.body.appendChild(v);
+    let mr = null, raf = 0, guard = 0, actx = null, done = false;
+    const clean = () => { cancelAnimationFrame(raf); clearTimeout(guard); try { v.pause(); } catch (e) { } v.removeAttribute('src'); try { v.load(); } catch (e) { } v.remove(); if (actx) actx.close().catch(() => { }); };
+    const fail = e => { if (done) return; done = true; clean(); rej(e instanceof Error ? e : new Error('No se ha podido recortar el vídeo')); };
+    v.onerror = () => fail(new Error('No se ha podido abrir el vídeo para recortarlo'));
+    v.onloadedmetadata = async () => {
+      try {
+        b = Math.min(b, v.duration || b); a = Math.max(0, Math.min(a, b - 0.5));
+        const cap = v.captureStream || v.mozCaptureStream;
+        if (!cap || !window.MediaRecorder) return fail(new Error('Este navegador no puede recortar vídeos: usa Chrome o Edge'));
+        await BQ.seek(v, a);
+        const vs = cap.call(v), tracks = vs.getVideoTracks();
+        try {   // audio a la grabación sin que suene por los altavoces
+          actx = new (window.AudioContext || window.webkitAudioContext)(); const src = actx.createMediaElementSource(v), dst = actx.createMediaStreamDestination(); src.connect(dst);
+          tracks.push(...dst.stream.getAudioTracks());
+        } catch (e) { v.muted = true; }
+        const mime = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+        const chunks = []; mr = new MediaRecorder(new MediaStream(tracks), mime ? { mimeType: mime, videoBitsPerSecond: 3000000 } : {});
+        mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+        mr.onstop = () => { if (done) return; done = true; clean(); res(new File([new Blob(chunks, { type: 'video/webm' })], (rec.name || 'clip') + '.webm', { type: 'video/webm' })); };
+        const end = () => { if (mr && mr.state !== 'inactive') { v.pause(); mr.stop(); } };
+        const tick = () => { if (v.currentTime >= b || v.ended) return end(); if (onProg) onProg((v.currentTime - a) / (b - a)); raf = requestAnimationFrame(tick); };
+        v.ontimeupdate = () => { if (v.currentTime >= b || v.ended) end(); };   // también con la pestaña en segundo plano
+        mr.start(500); if (actx && actx.state === 'suspended') await actx.resume().catch(() => { });
+        await v.play(); raf = requestAnimationFrame(tick);
+        guard = setTimeout(end, (b - a) * 1000 / (v.playbackRate || 1) + 20000);   // por si se atasca
+      } catch (e) { fail(e); }
+    };
+  });
   BQ.slug = s => BQ.norm(s).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'cuestionario';
 })();

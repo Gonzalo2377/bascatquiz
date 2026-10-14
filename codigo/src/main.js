@@ -2,6 +2,8 @@
 (function () {
   'use strict';
   const BQ = window.BQ;
+  BQ.ready.then(start);
+  function start() {
   const h = decodeURIComponent(location.hash.replace(/^#/, ''));
   const m = h.match(/^([A-Za-z0-9]{5})(?:\.(local))?$/), inv = h.match(/^staff-([A-Za-z0-9_-]+)$/);
   if (inv) { // enlace de invitación del staff: queda conectado a GitHub y se quita el token de la dirección
@@ -12,6 +14,7 @@
   else if (window.matchMedia('(max-width: 760px)').matches && !BQ.store.get('quizzes', []).length) chooser();
   else BQ.E.boot();
   window.addEventListener('hashchange', () => location.reload());
+  }
 
   // móvil sin código: lo normal es que sea un jugador que ha escrito la dirección a mano
   function chooser() {

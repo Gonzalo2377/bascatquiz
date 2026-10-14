@@ -61,6 +61,28 @@
     const q = BQ.clone(E.quiz);
     BQ.download(BQ.slug(q.title) + '.bascatquiz.json', JSON.stringify(q, null, 1), 'application/json');
   }
+  // Proyecto completo en un solo archivo: preguntas, respuestas, textos, imágenes (van dentro del cuestionario) y los
+  // vídeos del ordenador que usa (carpeta «videos/»). Los clips de la biblioteca de BasketApp ya están en la nube y no van.
+  async function exportZip() {
+    const q = BQ.clone(E.quiz), seen = new Set(); let n = 0, size = 0, miss = 0, lib = 0;
+    let JSZip; try { JSZip = await BQ.needZip(); } catch (e) { BQ.toast(e.message); return; }
+    const z = new JSZip();
+    for (const x of q.qs) {
+      if (!usesClip(x)) continue;
+      const r = BQ.resolveClip(x.clip); if (!r) { miss++; continue; } if (r.how !== 'file') { lib++; continue; }
+      const rec = BQ.files.get(r.key || x.clip.key); if (!rec) { miss++; continue; }
+      x.clip.key = rec.key; x.clip.src = 'file';
+      if (seen.has(rec.key)) continue; seen.add(rec.key); z.file('videos/' + rec.key, rec.file); n++; size += rec.file.size;
+    }
+    z.file('cuestionario.bascatquiz.json', JSON.stringify(q, null, 1));
+    if (size > 1.5e9 && !await BQ.ask('Proyecto muy grande', `Los vídeos pesan ${(size / 1e9).toFixed(1)} GB. Puede tardar y gastar mucha memoria. ¿Seguimos?`, 'Guardar')) return;
+    BQ.toast(`Preparando el proyecto: ${q.qs.length} elementos y ${n} vídeo${n === 1 ? '' : 's'} (${Math.round(size / 1e6)} MB)…`, 600000);
+    try {
+      const blob = await z.generateAsync({ type: 'blob', compression: 'STORE' });
+      BQ.downloadBlob(BQ.slug(q.title) + '.bascatquiz.zip', blob);
+      BQ.toast(`Proyecto guardado: preguntas, respuestas, imágenes y ${n} vídeo${n === 1 ? '' : 's'} del ordenador` + (lib ? ` · ${lib} clip${lib === 1 ? '' : 's'} de la biblioteca (ya están en la nube)` : '') + (miss ? ` · ⚠️ ${miss} sin vídeo cargado: no van dentro` : ''), 8000);
+    } catch (e) { BQ.toast('No he podido crear el zip: ' + e.message, 6000); }
+  }
 
   // ───────── copia en GitHub (repositorio de datos del staff) ─────────
   const QDIR = 'cuestionarios', RDIR = 'resultados', VDIR = 'videos';
@@ -77,10 +99,22 @@
     let n = 0;
     for (const x of todo) {
       const r = BQ.resolveClip(x.clip); if (!r || r.how !== 'file') continue;
-      const rec = BQ.files.get(r.key || x.clip.key); if (!rec) continue;
+      let rec = BQ.files.get(r.key || x.clip.key); if (!rec) continue;
+      // vídeo grande (un partido entero…): GitHub no admite tanto, así que se recorta el trozo de esta pregunta
+      // (3 s de margen antes y después) y se sube solo ese trozo. Los tiempos de la pregunta se pasan al trozo.
+      if (rec.file.size > 45e6) {
+        if (x.stop == null) { BQ.toast(`«${rec.name}»: pon dónde para el clip y se subirá su trozo a la nube`, 6000); continue; }
+        const a = Math.max(0, (x.from || 0) - 3), b = (x.to != null ? x.to : x.stop + 8) + 3;
+        BQ.toast(`Recortando el clip de una pregunta para subirlo a la nube (${Math.round(b - a)} s)…`, 600000);
+        let file; try { file = await BQ.cutSegment(rec, a, b); } catch (e) { BQ.toast(`«${rec.name}»: ${e.message}`, 6000); continue; }
+        const seg = BQ.addFile(`recortes/${BQ.slug(rec.name).slice(0, 40)}-${x.id}.webm`, file); BQ.cacheFile(seg);
+        x.clip = { src: 'file', key: seg.key, name: rec.name + ' (trozo)', folder: '', cutFrom: rec.key, cutOff: a };
+        x.from = Math.max(0, (x.from || 0) - a); x.stop = x.stop - a; if (x.to != null) x.to = x.to - a;
+        rec = seg; changed = true;
+      }
       const k = rec.key + '|' + rec.file.size;
       if (!vids[k]) {
-        if (rec.file.size > 45e6) { BQ.toast(`«${rec.name}» pesa más de 45 MB: no se sube a GitHub (en otro ordenador habrá que cargarlo a mano)`, 6000); continue; }
+        if (rec.file.size > 45e6) { BQ.toast(`«${rec.name}» sigue pesando más de 45 MB: guarda el proyecto completo (.zip) para llevarlo a otro ordenador`, 6000); continue; }
         const ext = (rec.file.name.match(/\.(\w{2,4})$/) || [, 'mp4'])[1].toLowerCase();
         const path = `${VDIR}/${BQ.slug(rec.name).slice(0, 60)}-${rec.file.size}.${ext}`;
         BQ.toast(`Subiendo vídeos a GitHub (${++n}/${todo.length})…`, 60000);
@@ -96,7 +130,15 @@
     if (!BQ.gh.ok()) return;
     let q = BQ.store.get('quiz.' + id, null); if (!q || pristine(q)) return;
     try {
-      if (!leaving && await uploadVideos(q)) { BQ.store.set('quiz.' + id, q); if (E.quiz && E.quiz.id === id) E.quiz.qs.forEach((x, i) => { if (q.qs[i] && q.qs[i].clip && x.clip) x.clip.gh = q.qs[i].clip.gh; }); }
+      if (!leaving && await uploadVideos(q)) {
+        BQ.store.set('quiz.' + id, q);
+        if (E.quiz && E.quiz.id === id) {
+          let cut = false;
+          E.quiz.qs.forEach(x => { const y = q.qs.find(z => z.id === x.id); if (!y || !y.clip || !x.clip) return;
+            if (y.clip.cutFrom && !x.clip.cutFrom) { x.clip = BQ.clone(y.clip); x.from = y.from; x.stop = y.stop; x.to = y.to; cut = true; } else x.clip.gh = y.clip.gh; });
+          if (cut) { BQ.store.set('quiz.' + id, E.quiz); renderList(); renderMain(); }
+        }
+      }
       const shas = shasOf(), s = shas[id];
       let sha;
       try { sha = await BQ.gh.putJSON(qPath(id), q, s && s.sha, 'Cuestionario: ' + q.title, { keepalive: !!leaving && JSON.stringify(q).length < 48000 }); }
@@ -327,13 +369,15 @@
       list.map(x => `<button data-open="${esc(x.id)}" class="qm ${x.id === E.quiz.id ? 'cur' : ''}"><span class="qmt">${x.id === E.quiz.id ? '● ' : ''}${esc(x.title)}</span><span class="qms muted">${x.n || 0} preg.${x.author ? ' · de ' + esc(x.author) : ''}${x.updated ? ' · ' + esc(ago(x.updated)) : ''}${x.by && x.by !== x.author ? ' (' + esc(x.by) + ')' : ''}</span></button>`).join('') +
       (shared && BQ.gh.state === 'checking' ? '<div class="cap">Buscando en GitHub…</div>' : '') +
       `<hr><button data-a="new">Nuevo cuestionario</button><button data-a="dup">Duplicar este</button>
-       <label>Importar (.json)…<input type="file" accept=".json,application/json" id="fImp"></label>
-       <button data-a="exp">Exportar este (.json)</button><hr><button data-a="share">Compartir con el staff…</button><hr><button data-a="del" class="danger">Borrar este cuestionario…</button>`;
+       <button data-a="zip" class="pri">💾 Guardar proyecto completo (.zip)</button>
+       <label>📂 Abrir proyecto (.zip o .json)…<input type="file" accept=".zip,.json,application/json,application/zip" id="fImp"></label>
+       <button data-a="exp">Exportar solo las preguntas (.json, sin vídeos)</button><hr><button data-a="share">Compartir con el staff…</button><hr><button data-a="del" class="danger">Borrar este cuestionario…</button>`;
     $('#mQuizPop [data-a=share]').onclick = () => { closeMenus(); ghWindow(false, true); };
     $$('#mQuizPop [data-open]').forEach(b => b.onclick = () => { closeMenus(); openQuiz(b.dataset.open); });
     $('#mQuizPop [data-a=new]').onclick = () => { closeMenus(); newQuiz('Nuevo cuestionario'); };
     $('#mQuizPop [data-a=dup]').onclick = () => { closeMenus(); const q = BQ.clone(E.quiz); q.id = BQ.uid(8); q.title += ' (copia)'; q.created = Date.now(); E.quiz = q; save(true); renderAll(); BQ.toast('Copia creada'); };
     $('#mQuizPop [data-a=exp]').onclick = () => { closeMenus(); exportQuiz(); };
+    $('#mQuizPop [data-a=zip]').onclick = () => { closeMenus(); exportZip(); };
     $('#mQuizPop [data-a=del]').onclick = async () => {
       closeMenus();
       if (!await BQ.ask('Borrar cuestionario', `Se borrará «${E.quiz.title}»${BQ.gh.configured() ? ' de este navegador y de GitHub' : ' de este navegador'} (los vídeos no se tocan). Si quieres conservarlo, expórtalo antes.`, 'Borrar', true)) return;
@@ -342,7 +386,7 @@
       if (sh[gone]) { delete sh[gone]; BQ.store.set('ghsha', sh); const dels = BQ.store.get('ghdel', []); dels.push(gone); BQ.store.set('ghdel', dels); if (BQ.gh.ok()) ghSync(); }
       const next = index()[0]; if (!next || !openQuiz(next.id)) newQuiz('Nuevo cuestionario');
     };
-    $('#fImp').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; closeMenus(); if (f) importQuiz(await f.text(), f.name); };
+    $('#fImp').onchange = async e => { const f = e.target.files[0]; e.target.value = ''; closeMenus(); if (!f) return; if (/\.zip$/i.test(f.name)) openZip(f); else importQuiz(await f.text(), f.name); };
   }
 
   function renderAll() { $('#qTitle').value = E.quiz.title; $('#qLang').value = L(); renderList(); renderMain(); }
@@ -414,6 +458,17 @@
     BQ.toast('Abriendo el zip…', 60000);
     try {
       const JSZip = await BQ.needZip(), z = await JSZip.loadAsync(f), list = [];
+      const qj = Object.values(z.files).find(e => !e.dir && /\.json$/i.test(e.name) && !/__MACOSX/.test(e.name));
+      if (qj) {   // proyecto completo: primero los vídeos (con su ruta de siempre) y después el cuestionario, que ya los encuentra
+        let n = 0;
+        for (const [p, ent] of Object.entries(z.files)) {
+          if (ent.dir || !BQ.isVideo(p) || /__MACOSX/.test(p)) continue;
+          const b = await ent.async('blob'), key = p.replace(/^videos\//, '');
+          BQ.cacheFile(BQ.addFile(key, new File([b], key.split('/').pop(), { type: /\.webm$/i.test(p) ? 'video/webm' : 'video/mp4' }))); n++;
+        }
+        importQuiz(await qj.async('string'), qj.name);
+        return;
+      }
       for (const [p, ent] of Object.entries(z.files)) { if (ent.dir || !BQ.isVideo(p) || /__MACOSX/.test(p)) continue; const b = await ent.async('blob'); list.push({ path: p, file: new File([b], p.split('/').pop(), { type: /\.webm$/i.test(p) ? 'video/webm' : 'video/mp4' }) }); }
       await addFiles(list);
     } catch (err) { BQ.toast('No he podido abrir el zip: ' + err.message); }
