@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1791990883265,
- "updated": 1791990897939,
+ "updated": 1791990996141,
  "qs": [
   {
    "id": "hb5hcy",
@@ -19,7 +19,7 @@
     "dur": 15.04,
     "gh": "videos/rdeff_ko00_22_39_648_00_22_54-28520967.mov"
    },
-   "from": 0,
+   "from": 5.33,
    "stop": 12.54,
    "to": null,
    "ctx": "",
