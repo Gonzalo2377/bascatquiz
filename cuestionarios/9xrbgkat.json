@@ -4,7 +4,7 @@
  "title": "Nuevo cuestionario",
  "lang": "ca",
  "created": 1791987871750,
- "updated": 1791991437180,
+ "updated": 1791992420243,
  "qs": [
   {
    "id": "c9zkuz",
@@ -21,6 +21,46 @@
    },
    "from": 0,
    "stop": 10.94,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "6ay8ux",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "Grabación de pantalla 2026-09-12 205348.mp4",
+    "name": "Grabación de pantalla 2026-09-12 205348",
+    "folder": "",
+    "dur": 15.74,
+    "gh": "videos/grabacion_de_pantalla_2026_09_12_205348-17529266.mp4"
+   },
+   "from": 0,
+   "stop": 13.24,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
