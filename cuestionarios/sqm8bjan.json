@@ -1,26 +1,138 @@
 {
  "v": 1,
  "id": "sqm8bjan",
- "title": "Nuevo cuestionario",
+ "title": "khoot",
  "lang": "ca",
  "created": 1791990883265,
- "updated": 1791991192400,
+ "updated": 1791991419426,
  "qs": [
   {
-   "id": "hb5hcy",
+   "id": "yche3w",
    "on": true,
    "media": "clip",
    "img": null,
    "clip": {
     "src": "file",
-    "key": "-rdeff_ko00.22.39.648-00.22.54.145.MOV",
-    "name": "-rdeff_ko00.22.39.648-00.22.54.145",
-    "folder": "",
-    "dur": 15.04,
-    "gh": "videos/rdeff_ko00_22_39_648_00_22_54-28520967.mov"
+    "key": "-off_sube_jsp_2p_ok00.17.46.005-00.18.04.344.MOV",
+    "name": "-off_sube_jsp_2p_ok00.17.46.005-00.18.04.344",
+    "folder": ""
    },
-   "from": 5.33,
-   "stop": 12.54,
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "urhb7v",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-deff_ko_1c1_2p00.01.08.577-00.01.16.100.MOV",
+    "name": "-deff_ko_1c1_2p00.01.08.577-00.01.16.100",
+    "folder": ""
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "hdkjvf",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-off_pp_2p_soles00.13.43.384-00.14.07.384.MOV",
+    "name": "-off_pp_2p_soles00.13.43.384-00.14.07.384",
+    "folder": ""
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  },
+  {
+   "id": "e953v7",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-off_ok_2p00.16.40.138-00.16.53.101.MOV",
+    "name": "-off_ok_2p00.16.40.138-00.16.53.101",
+    "folder": ""
+   },
+   "from": 0,
+   "stop": null,
    "to": null,
    "ctx": "",
    "text": "Com acaba la jugada?",
