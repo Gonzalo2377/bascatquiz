@@ -1,0 +1,51 @@
+{
+ "v": 1,
+ "id": "sqm8bjan",
+ "title": "Nuevo cuestionario",
+ "lang": "ca",
+ "created": 1791990883265,
+ "updated": 1791990897939,
+ "qs": [
+  {
+   "id": "hb5hcy",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-rdeff_ko00.22.39.648-00.22.54.145.MOV",
+    "name": "-rdeff_ko00.22.39.648-00.22.54.145",
+    "folder": "",
+    "dur": 15.04,
+    "gh": "videos/rdeff_ko00_22_39_648_00_22_54-28520967.mov"
+   },
+   "from": 0,
+   "stop": 12.54,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  }
+ ],
+ "author": ""
+}
