@@ -4,8 +4,48 @@
  "title": "khoot",
  "lang": "ca",
  "created": 1791990883265,
- "updated": 1791991673745,
- "qs": [],
+ "updated": 1791991680978,
+ "qs": [
+  {
+   "id": "znmk43",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-deff_apretar_camp_deff_ok_2p00.01.30.791-00.01.43.841.MOV",
+    "name": "-deff_apretar_camp_deff_ok_2p00.01.30.791-00.01.43.841",
+    "folder": "",
+    "gh": "videos/deff_apretar_camp_deff_ok_2p00_01_30_791_00_01_43-14494157.mov"
+   },
+   "from": 0,
+   "stop": null,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  }
+ ],
  "author": "Gonzalo",
  "by": "Gonzalo"
 }
