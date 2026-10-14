@@ -1,0 +1,51 @@
+{
+ "v": 1,
+ "id": "d4ns62s9",
+ "title": "Nuevo cuestionario",
+ "lang": "ca",
+ "created": 1791987664716,
+ "updated": 1791987736339,
+ "qs": [
+  {
+   "id": "k8uhas",
+   "on": true,
+   "media": "clip",
+   "img": null,
+   "clip": {
+    "src": "file",
+    "key": "-off_1c1_abril_ok00.09.48.908-00.10.03.309.MOV",
+    "name": "-off_1c1_abril_ok00.09.48.908-00.10.03.309",
+    "folder": "",
+    "dur": 15.44,
+    "gh": "videos/off_1c1_abril_ok00_09_48_908_00_10_03-29404284.mov"
+   },
+   "from": 0,
+   "stop": 12.94,
+   "to": null,
+   "ctx": "",
+   "text": "Com acaba la jugada?",
+   "opts": [
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    },
+    {
+     "t": "",
+     "ok": false
+    }
+   ],
+   "lim": 20,
+   "pts": 1,
+   "expl": ""
+  }
+ ],
+ "author": ""
+}
